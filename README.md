@@ -3,6 +3,14 @@
 
 Aplikasi web modern, responsif (*mobile-friendly*), dan intuitif untuk mengelola penitipan barang peserta lomba/acara secara digital menggunakan **Nomor Tiket Otomatis** dan **Pemindai Kode QR Kamera**.
 
+### 6. 🎨 Skema Desain & Palet Warna (*Fresh Forest & Neon Theme*)
+Aplikasi menggunakan skema warna hijau alami modern berbasis palet 5-warna:
+- **`#186301` (Dark Pine)**: Warna dominan untuk header, judul, gradien tombol utama, dan teks penting.
+- **`#297810` (Deep Foliage)**: Warna interaktif utama (tombol aksi, active state, border fokus).
+- **`#49a141` (Leaf Green)**: Warna ikon, badge serah terima, tombol scan kamera.
+- **`#77d26f` (Mint Sage)**: Warna aksen lembut, border kartu, tag pills, dan bingkai tiket.
+- **`#2fff00` (Electric Neon Lime)**: Garis animasi laser pemindai kamera dan lampu indikator sistem aktif (*live pulse*).
+
 ---
 
 ## 💡 Tips & Solusi Jika QR Code Sulit / Tidak Bisa Di-scan
@@ -26,6 +34,14 @@ Jika Anda mengalami kendala saat memindai QR Code, perhatikan 3 hal berikut:
 
 4. **Kualitas Tampilan QR Code**:
    - Kode QR kini telah dioptimasi dengan format modul besar (densitas rendah / *Level M*), sehingga sangat mudah terbaca oleh kamera HP/webcam bahkan dari jarak jauh dan kondisi cahaya redup.
+
+### 6. 🎨 Skema Desain & Palet Warna (*Fresh Forest & Neon Theme*)
+Aplikasi menggunakan skema warna hijau alami modern berbasis palet 5-warna:
+- **`#186301` (Dark Pine)**: Warna dominan untuk header, judul, gradien tombol utama, dan teks penting.
+- **`#297810` (Deep Foliage)**: Warna interaktif utama (tombol aksi, active state, border fokus).
+- **`#49a141` (Leaf Green)**: Warna ikon, badge serah terima, tombol scan kamera.
+- **`#77d26f` (Mint Sage)**: Warna aksen lembut, border kartu, tag pills, dan bingkai tiket.
+- **`#2fff00` (Electric Neon Lime)**: Garis animasi laser pemindai kamera dan lampu indikator sistem aktif (*live pulse*).
 
 ---
 
@@ -71,6 +87,14 @@ Jika Anda mengalami kendala saat memindai QR Code, perhatikan 3 hal berikut:
 - Fitur **Ekspor ke CSV/Excel** (*BOM UTF-8 ready*).
 - Fitur **Muat Data Demo** dan **Kosongkan Data**.
 
+### 6. 🎨 Skema Desain & Palet Warna (*Fresh Forest & Neon Theme*)
+Aplikasi menggunakan skema warna hijau alami modern berbasis palet 5-warna:
+- **`#186301` (Dark Pine)**: Warna dominan untuk header, judul, gradien tombol utama, dan teks penting.
+- **`#297810` (Deep Foliage)**: Warna interaktif utama (tombol aksi, active state, border fokus).
+- **`#49a141` (Leaf Green)**: Warna ikon, badge serah terima, tombol scan kamera.
+- **`#77d26f` (Mint Sage)**: Warna aksen lembut, border kartu, tag pills, dan bingkai tiket.
+- **`#2fff00` (Electric Neon Lime)**: Garis animasi laser pemindai kamera dan lampu indikator sistem aktif (*live pulse*).
+
 ---
 
 ## 💡 Tips & Solusi Jika QR Code Sulit / Tidak Bisa Di-scan
@@ -94,6 +118,14 @@ Jika Anda mengalami kendala saat memindai QR Code, perhatikan 3 hal berikut:
 
 4. **Kualitas Tampilan QR Code**:
    - Kode QR kini telah dioptimasi dengan format modul besar (densitas rendah / *Level M*), sehingga sangat mudah terbaca oleh kamera HP/webcam bahkan dari jarak jauh dan kondisi cahaya redup.
+
+### 6. 🎨 Skema Desain & Palet Warna (*Fresh Forest & Neon Theme*)
+Aplikasi menggunakan skema warna hijau alami modern berbasis palet 5-warna:
+- **`#186301` (Dark Pine)**: Warna dominan untuk header, judul, gradien tombol utama, dan teks penting.
+- **`#297810` (Deep Foliage)**: Warna interaktif utama (tombol aksi, active state, border fokus).
+- **`#49a141` (Leaf Green)**: Warna ikon, badge serah terima, tombol scan kamera.
+- **`#77d26f` (Mint Sage)**: Warna aksen lembut, border kartu, tag pills, dan bingkai tiket.
+- **`#2fff00` (Electric Neon Lime)**: Garis animasi laser pemindai kamera dan lampu indikator sistem aktif (*live pulse*).
 
 ---
 
@@ -107,6 +139,14 @@ tempat penitipan/
 └── README.md      # Dokumentasi sistem & panduan penggunaan panitia
 ```
 
+### 6. 🎨 Skema Desain & Palet Warna (*Fresh Forest & Neon Theme*)
+Aplikasi menggunakan skema warna hijau alami modern berbasis palet 5-warna:
+- **`#186301` (Dark Pine)**: Warna dominan untuk header, judul, gradien tombol utama, dan teks penting.
+- **`#297810` (Deep Foliage)**: Warna interaktif utama (tombol aksi, active state, border fokus).
+- **`#49a141` (Leaf Green)**: Warna ikon, badge serah terima, tombol scan kamera.
+- **`#77d26f` (Mint Sage)**: Warna aksen lembut, border kartu, tag pills, dan bingkai tiket.
+- **`#2fff00` (Electric Neon Lime)**: Garis animasi laser pemindai kamera dan lampu indikator sistem aktif (*live pulse*).
+
 ---
 
 ## 💡 Tips & Solusi Jika QR Code Sulit / Tidak Bisa Di-scan
@@ -130,6 +170,14 @@ Jika Anda mengalami kendala saat memindai QR Code, perhatikan 3 hal berikut:
 
 4. **Kualitas Tampilan QR Code**:
    - Kode QR kini telah dioptimasi dengan format modul besar (densitas rendah / *Level M*), sehingga sangat mudah terbaca oleh kamera HP/webcam bahkan dari jarak jauh dan kondisi cahaya redup.
+
+### 6. 🎨 Skema Desain & Palet Warna (*Fresh Forest & Neon Theme*)
+Aplikasi menggunakan skema warna hijau alami modern berbasis palet 5-warna:
+- **`#186301` (Dark Pine)**: Warna dominan untuk header, judul, gradien tombol utama, dan teks penting.
+- **`#297810` (Deep Foliage)**: Warna interaktif utama (tombol aksi, active state, border fokus).
+- **`#49a141` (Leaf Green)**: Warna ikon, badge serah terima, tombol scan kamera.
+- **`#77d26f` (Mint Sage)**: Warna aksen lembut, border kartu, tag pills, dan bingkai tiket.
+- **`#2fff00` (Electric Neon Lime)**: Garis animasi laser pemindai kamera dan lampu indikator sistem aktif (*live pulse*).
 
 ---
 
@@ -148,6 +196,14 @@ Aplikasi ini bersifat **Client-Side (Stand-alone)** tanpa perlu instalasi databa
      ```
      Lalu buka `http://localhost:8080` di browser Anda.
 
+### 6. 🎨 Skema Desain & Palet Warna (*Fresh Forest & Neon Theme*)
+Aplikasi menggunakan skema warna hijau alami modern berbasis palet 5-warna:
+- **`#186301` (Dark Pine)**: Warna dominan untuk header, judul, gradien tombol utama, dan teks penting.
+- **`#297810` (Deep Foliage)**: Warna interaktif utama (tombol aksi, active state, border fokus).
+- **`#49a141` (Leaf Green)**: Warna ikon, badge serah terima, tombol scan kamera.
+- **`#77d26f` (Mint Sage)**: Warna aksen lembut, border kartu, tag pills, dan bingkai tiket.
+- **`#2fff00` (Electric Neon Lime)**: Garis animasi laser pemindai kamera dan lampu indikator sistem aktif (*live pulse*).
+
 ---
 
 ## 💡 Tips & Solusi Jika QR Code Sulit / Tidak Bisa Di-scan
@@ -171,6 +227,14 @@ Jika Anda mengalami kendala saat memindai QR Code, perhatikan 3 hal berikut:
 
 4. **Kualitas Tampilan QR Code**:
    - Kode QR kini telah dioptimasi dengan format modul besar (densitas rendah / *Level M*), sehingga sangat mudah terbaca oleh kamera HP/webcam bahkan dari jarak jauh dan kondisi cahaya redup.
+
+### 6. 🎨 Skema Desain & Palet Warna (*Fresh Forest & Neon Theme*)
+Aplikasi menggunakan skema warna hijau alami modern berbasis palet 5-warna:
+- **`#186301` (Dark Pine)**: Warna dominan untuk header, judul, gradien tombol utama, dan teks penting.
+- **`#297810` (Deep Foliage)**: Warna interaktif utama (tombol aksi, active state, border fokus).
+- **`#49a141` (Leaf Green)**: Warna ikon, badge serah terima, tombol scan kamera.
+- **`#77d26f` (Mint Sage)**: Warna aksen lembut, border kartu, tag pills, dan bingkai tiket.
+- **`#2fff00` (Electric Neon Lime)**: Garis animasi laser pemindai kamera dan lampu indikator sistem aktif (*live pulse*).
 
 ---
 
@@ -192,6 +256,14 @@ flowchart TD
     L --> M[Status Berubah Hijau 'Sudah Diambil']
 ```
 
+### 6. 🎨 Skema Desain & Palet Warna (*Fresh Forest & Neon Theme*)
+Aplikasi menggunakan skema warna hijau alami modern berbasis palet 5-warna:
+- **`#186301` (Dark Pine)**: Warna dominan untuk header, judul, gradien tombol utama, dan teks penting.
+- **`#297810` (Deep Foliage)**: Warna interaktif utama (tombol aksi, active state, border fokus).
+- **`#49a141` (Leaf Green)**: Warna ikon, badge serah terima, tombol scan kamera.
+- **`#77d26f` (Mint Sage)**: Warna aksen lembut, border kartu, tag pills, dan bingkai tiket.
+- **`#2fff00` (Electric Neon Lime)**: Garis animasi laser pemindai kamera dan lampu indikator sistem aktif (*live pulse*).
+
 ---
 
 ## 💡 Tips & Solusi Jika QR Code Sulit / Tidak Bisa Di-scan
@@ -215,6 +287,14 @@ Jika Anda mengalami kendala saat memindai QR Code, perhatikan 3 hal berikut:
 
 4. **Kualitas Tampilan QR Code**:
    - Kode QR kini telah dioptimasi dengan format modul besar (densitas rendah / *Level M*), sehingga sangat mudah terbaca oleh kamera HP/webcam bahkan dari jarak jauh dan kondisi cahaya redup.
+
+### 6. 🎨 Skema Desain & Palet Warna (*Fresh Forest & Neon Theme*)
+Aplikasi menggunakan skema warna hijau alami modern berbasis palet 5-warna:
+- **`#186301` (Dark Pine)**: Warna dominan untuk header, judul, gradien tombol utama, dan teks penting.
+- **`#297810` (Deep Foliage)**: Warna interaktif utama (tombol aksi, active state, border fokus).
+- **`#49a141` (Leaf Green)**: Warna ikon, badge serah terima, tombol scan kamera.
+- **`#77d26f` (Mint Sage)**: Warna aksen lembut, border kartu, tag pills, dan bingkai tiket.
+- **`#2fff00` (Electric Neon Lime)**: Garis animasi laser pemindai kamera dan lampu indikator sistem aktif (*live pulse*).
 
 ---
 *Dibuat untuk Organisasi & UKM PCC - Digital Cloakroom System*

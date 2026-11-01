@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -18,21 +18,22 @@
       theme: {
         extend: {
           colors: {
-            brand: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0284c7',
-              600: '#0369a1',
-              700: '#075985',
-            },
-            amber: {
-              400: '#fbbf24',
-              500: '#f59e0b',
-              600: '#d97706',
-            },
-            emerald: {
-              500: '#10b981',
-              600: '#059669',
+            pcc: {
+              neon: '#2fff00',
+              leaf: '#49a141',
+              deep: '#297810',
+              dark: '#186301',
+              mint: '#77d26f',
+              50: '#f4faf3',
+              100: '#e5f6e3',
+              200: '#c7ecc3',
+              300: '#9edb98',
+              400: '#77d26f',
+              500: '#49a141',
+              600: '#297810',
+              700: '#186301',
+              800: '#134e01',
+              900: '#0c3300',
             }
           },
           fontFamily: {
@@ -78,29 +79,30 @@
         
         <!-- Brand Title & Logo -->
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
-            <i class="fa-solid fa-boxes-packing text-lg sm:text-xl"></i>
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#186301] flex items-center justify-center text-white shadow-md shadow-[#186301]/20 relative">
+            <i class="fa-solid fa-boxes-packing text-lg"></i>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#2fff00] border-2 border-white"></span>
           </div>
           <div>
             <div class="flex items-center gap-2">
               <span class="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900">PCC CLOAKROOM</span>
-              <span class="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 uppercase tracking-wider">v2.0</span>
+              <span class="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-md bg-[#eaf7e8] text-[#186301] border border-[#b8e2b3] uppercase tracking-wider">v2.0</span>
             </div>
             <p class="text-xs text-slate-500 hidden sm:block">Sistem Penitipan Barang & Registrasi Peserta Digital</p>
           </div>
         </div>
 
         <!-- Desktop Navigation Tabs -->
-        <nav class="hidden md:flex items-center space-x-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
-          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-white text-sky-600 shadow-sm">
-            <i class="fa-solid fa-chart-pie"></i>
+        <nav class="hidden md:flex items-center space-x-1 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all bg-white text-[#186301] shadow-sm">
+            <i class="fa-solid fa-chart-pie text-[#297810]"></i>
             <span>Dashboard & Data</span>
           </button>
-          <button onclick="switchTab('checkin')" id="nav-checkin" class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all">
+          <button onclick="switchTab('checkin')" id="nav-checkin" class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all">
             <i class="fa-solid fa-circle-plus"></i>
             <span>Check-In Baru</span>
           </button>
-          <button onclick="switchTab('scanner')" id="nav-scanner" class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition-all">
+          <button onclick="switchTab('scanner')" id="nav-scanner" class="nav-tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all">
             <i class="fa-solid fa-qrcode"></i>
             <span>Scan QR Ambil</span>
           </button>
@@ -114,23 +116,23 @@
           </div>
 
           <div class="relative group">
-            <button id="quickActionsBtn" class="p-2 sm:px-3 sm:py-2 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center gap-2 text-sm transition">
-              <i class="fa-solid fa-sliders"></i>
-              <span class="hidden sm:inline text-xs font-semibold">Opsi</span>
+            <button id="quickActionsBtn" class="p-2 sm:px-3 sm:py-2 text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl flex items-center gap-2 text-sm transition font-semibold">
+              <i class="fa-solid fa-sliders text-[#297810]"></i>
+              <span class="hidden sm:inline text-xs">Opsi</span>
             </button>
             <!-- Dropdown Menu -->
-            <div class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-1 hidden group-hover:block transition-all z-50">
-              <button onclick="openEmailConfigModal()" class="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600 flex items-center gap-2.5">
-                <i class="fa-solid fa-envelope-circle-check text-sky-600"></i> Pengaturan Email (EmailJS)
+            <div class="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 py-1.5 hidden group-hover:block transition-all z-50">
+              <button onclick="openEmailConfigModal()" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#186301] flex items-center gap-2.5 transition">
+                <i class="fa-solid fa-envelope-circle-check text-[#297810]"></i> Pengaturan Email (EmailJS)
               </button>
-              <button onclick="exportDataCSV()" class="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600 flex items-center gap-2.5">
-                <i class="fa-solid fa-file-excel text-emerald-600"></i> Ekspor Data ke CSV
+              <button onclick="exportDataCSV()" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#186301] flex items-center gap-2.5 transition">
+                <i class="fa-solid fa-file-excel text-[#297810]"></i> Ekspor Data ke CSV
               </button>
-              <button onclick="loadSampleData()" class="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-amber-50 hover:text-amber-600 flex items-center gap-2.5">
-                <i class="fa-solid fa-database text-amber-500"></i> Isi Data Contoh (Demo)
+              <button onclick="loadSampleData()" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 flex items-center gap-2.5 transition">
+                <i class="fa-solid fa-database text-slate-500"></i> Isi Data Contoh (Demo)
               </button>
               <div class="border-t border-slate-100 my-1"></div>
-              <button onclick="clearAllData()" class="w-full text-left px-4 py-2.5 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2.5">
+              <button onclick="clearAllData()" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 transition">
                 <i class="fa-solid fa-trash-can"></i> Hapus Semua Data
               </button>
             </div>
@@ -142,56 +144,59 @@
   </header>
 
   <!-- ================= MAIN CONTAINER ================= -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 sm:pt-7 flex-1 w-full no-print">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 flex-1 w-full no-print">
 
     <!-- ======================================================== -->
     <!-- TAB 1: DASHBOARD & RINGKASAN DATA                       -->
     <!-- ======================================================== -->
     <div id="tab-dashboard" class="tab-content block space-y-6">
 
-      <!-- Statistics Banner Cards -->
+      <!-- Statistics Banner Cards: Harmonious, Professional & Clean -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         
         <!-- Card 1: Barang Dititipkan (Aktif) -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-white border border-amber-200/80 rounded-2xl p-5 shadow-sm">
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm hover:shadow transition">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-xs font-semibold uppercase tracking-wider text-amber-700">Sedang Dititipkan</p>
-              <h3 id="statActiveCount" class="text-3xl sm:text-4xl font-extrabold text-amber-600 mt-1">0</h3>
-              <p class="text-[11px] text-amber-700/80 mt-1 flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block animate-ping"></span>
+              <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Sedang Dititipkan</p>
+              <h3 id="statActiveCount" class="text-3xl sm:text-4xl font-extrabold text-[#186301] mt-1">0</h3>
+              <p class="text-xs text-slate-500 mt-2 flex items-center gap-1.5 font-medium">
+                <span class="w-2 h-2 rounded-full bg-[#49a141] inline-block animate-pulse"></span>
                 Barang aktif di loker / rak
               </p>
             </div>
-            <div class="w-14 h-14 rounded-2xl bg-amber-500/15 flex items-center justify-center text-amber-600 text-2xl shadow-inner">
+            <div class="w-13 h-13 p-3 rounded-2xl bg-[#eaf7e8] text-[#186301] border border-[#b8e2b3] flex items-center justify-center text-xl">
               <i class="fa-solid fa-box-archive"></i>
             </div>
           </div>
         </div>
 
         <!-- Card 2: Sudah Diambil (Selesai) -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-white border border-emerald-200/80 rounded-2xl p-5 shadow-sm">
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm hover:shadow transition">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">Sudah Diambil</p>
-              <h3 id="statCompletedCount" class="text-3xl sm:text-4xl font-extrabold text-emerald-600 mt-1">0</h3>
-              <p class="text-[11px] text-emerald-700/80 mt-1">Selesai diambil oleh peserta</p>
+              <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Sudah Diambil</p>
+              <h3 id="statCompletedCount" class="text-3xl sm:text-4xl font-extrabold text-[#297810] mt-1">0</h3>
+              <p class="text-xs text-slate-500 mt-2 flex items-center gap-1.5 font-medium">
+                <i class="fa-solid fa-circle-check text-[#49a141]"></i>
+                Selesai diserahkan
+              </p>
             </div>
-            <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 flex items-center justify-center text-emerald-600 text-2xl shadow-inner">
+            <div class="w-13 h-13 p-3 rounded-2xl bg-[#eaf7e8] text-[#297810] border border-[#b8e2b3] flex items-center justify-center text-xl">
               <i class="fa-solid fa-circle-check"></i>
             </div>
           </div>
         </div>
 
         <!-- Card 3: Total Registrasi -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-sky-500/10 via-sky-500/5 to-white border border-sky-200/80 rounded-2xl p-5 shadow-sm">
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm hover:shadow transition">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-xs font-semibold uppercase tracking-wider text-sky-700">Total Keseluruhan</p>
-              <h3 id="statTotalCount" class="text-3xl sm:text-4xl font-extrabold text-sky-700 mt-1">0</h3>
-              <p class="text-[11px] text-sky-700/80 mt-1">Akumulasi seluruh penitipan</p>
+              <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Keseluruhan</p>
+              <h3 id="statTotalCount" class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-1">0</h3>
+              <p class="text-xs text-slate-500 mt-2 font-medium">Akumulasi seluruh penitipan</p>
             </div>
-            <div class="w-14 h-14 rounded-2xl bg-sky-500/15 flex items-center justify-center text-sky-600 text-2xl shadow-inner">
+            <div class="w-13 h-13 p-3 rounded-2xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center text-xl">
               <i class="fa-solid fa-layer-group"></i>
             </div>
           </div>
@@ -199,26 +204,26 @@
 
       </div>
 
-      <!-- Quick Action Floating/Top Bar for Field Staff -->
-      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <!-- Quick Action Top Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 shadow-sm">
         <div class="flex items-center gap-2">
           <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Aksi Cepat:</span>
-          <button onclick="switchTab('checkin')" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-sm shadow-sky-600/30">
+          <button onclick="switchTab('checkin')" class="px-3.5 py-1.5 bg-[#186301] hover:bg-[#134e01] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
             <i class="fa-solid fa-plus"></i> Titip Barang Baru
           </button>
-          <button onclick="switchTab('scanner')" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-sm shadow-emerald-600/30">
+          <button onclick="switchTab('scanner')" class="px-3.5 py-1.5 bg-[#297810] hover:bg-[#186301] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
             <i class="fa-solid fa-camera"></i> Scan Kamera QR
           </button>
         </div>
 
-        <div class="text-xs text-slate-500 flex items-center gap-2">
-          <i class="fa-solid fa-circle text-[8px] text-emerald-500 animate-pulse"></i>
+        <div class="text-xs text-slate-600 flex items-center gap-2 font-medium">
+          <span class="w-2 h-2 rounded-full bg-[#49a141] inline-block"></span>
           Penyimpanan Lokal Aktif (Data Tersimpan Otomatis)
         </div>
       </div>
 
       <!-- Data Table Card with Multi-Filter -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
         
         <!-- Filter and Search Header -->
         <div class="p-4 sm:p-5 border-b border-slate-100 space-y-3">
@@ -230,13 +235,13 @@
 
             <!-- Status Filter Buttons -->
             <div class="flex items-center bg-slate-100 p-1 rounded-xl self-start md:self-auto border border-slate-200">
-              <button onclick="setStatusFilter('all')" id="filter-status-all" class="status-filter-btn px-3 py-1 rounded-lg text-xs font-semibold bg-white text-slate-800 shadow-sm transition">
+              <button onclick="setStatusFilter('all')" id="filter-status-all" class="status-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-[#186301] shadow-sm transition">
                 Semua (<span id="countFilterAll">0</span>)
               </button>
-              <button onclick="setStatusFilter('active')" id="filter-status-active" class="status-filter-btn px-3 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+              <button onclick="setStatusFilter('active')" id="filter-status-active" class="status-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
                 Dititipkan (<span id="countFilterActive">0</span>)
               </button>
-              <button onclick="setStatusFilter('completed')" id="filter-status-completed" class="status-filter-btn px-3 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+              <button onclick="setStatusFilter('completed')" id="filter-status-completed" class="status-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
                 Diambil (<span id="countFilterCompleted">0</span>)
               </button>
             </div>
@@ -246,11 +251,11 @@
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">
             <div class="sm:col-span-8 relative">
               <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="text" id="searchInput" oninput="renderTable()" placeholder="Cari Nomor Tiket (TIK-xxx), Nama Peserta, Kontak, atau Barang..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition">
+              <input type="text" id="searchInput" oninput="renderTable()" placeholder="Cari Nomor Tiket (TIK-xxx), Nama Peserta, Kontak, atau Barang..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] transition bg-white">
             </div>
 
             <div class="sm:col-span-4">
-              <select id="categoryFilter" onchange="renderTable()" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 bg-white text-slate-700">
+              <select id="categoryFilter" onchange="renderTable()" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] bg-white text-slate-700 font-medium">
                 <option value="all">Semua Kategori Lomba</option>
                 <option value="Web Design">Web Design</option>
                 <option value="UI/UX Design">UI/UX Design</option>
@@ -268,7 +273,7 @@
         <!-- Table View for Desktop / Large Screen -->
         <div class="overflow-x-auto hidden sm:block">
           <table class="w-full text-left text-xs sm:text-sm">
-            <thead class="bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200">
+            <thead class="bg-slate-50 text-slate-600 font-bold uppercase text-[11px] tracking-wider border-b border-slate-200">
               <tr>
                 <th class="py-3 px-4">No. Tiket</th>
                 <th class="py-3 px-4">Peserta & Kategori</th>
@@ -295,9 +300,9 @@
           <div class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3 text-2xl">
             <i class="fa-solid fa-inbox"></i>
           </div>
-          <h4 class="font-bold text-slate-700 text-sm">Belum Ada Data Penitipan</h4>
+          <h4 class="font-bold text-slate-800 text-sm">Belum Ada Data Penitipan</h4>
           <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Silakan buat registrasi penitipan baru atau ubah kata kunci pencarian Anda.</p>
-          <button onclick="switchTab('checkin')" class="mt-4 px-4 py-2 bg-sky-600 text-white text-xs font-semibold rounded-xl hover:bg-sky-700 transition">
+          <button onclick="switchTab('checkin')" class="mt-4 px-4 py-2 bg-[#186301] hover:bg-[#134e01] text-white text-xs font-bold rounded-xl transition shadow-sm">
             + Tambah Titipan Pertama
           </button>
         </div>
@@ -312,13 +317,13 @@
     <div id="tab-checkin" class="tab-content hidden max-w-3xl mx-auto space-y-6">
       
       <!-- Check-In Card -->
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-8">
         
         <!-- Form Header -->
         <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
           <div>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-100 text-sky-700 mb-1.5">
-              <i class="fa-solid fa-receipt"></i> Registrasi Check-In
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#eaf7e8] text-[#186301] border border-[#b8e2b3] mb-1.5">
+              <i class="fa-solid fa-receipt text-[#297810]"></i> Registrasi Check-In
             </span>
             <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">Form Penitipan Barang</h2>
             <p class="text-xs text-slate-500">Lengkapi identitas peserta untuk menggenerasi Nomor Tiket & Kode QR digital</p>
@@ -326,7 +331,7 @@
           
           <div class="text-right">
             <span class="text-[11px] font-semibold text-slate-400 block uppercase tracking-wider">Tiket Berikutnya</span>
-            <span id="nextTicketBadge" class="font-mono text-base sm:text-lg font-bold text-sky-600 bg-sky-50 border border-sky-200 px-3 py-1 rounded-xl">
+            <span id="nextTicketBadge" class="font-mono text-base sm:text-lg font-bold text-[#186301] bg-[#eaf7e8] border border-[#b8e2b3] px-3.5 py-1.5 rounded-xl inline-block shadow-sm">
               TIK-001
             </span>
           </div>
@@ -342,7 +347,7 @@
             </label>
             <div class="relative">
               <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="text" id="inputNama" required placeholder="Contoh: Muhammad Budi Pratama" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition font-medium">
+              <input type="text" id="inputNama" required placeholder="Contoh: Muhammad Budi Pratama" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] transition font-medium">
             </div>
           </div>
 
@@ -354,7 +359,7 @@
               </label>
               <div class="relative">
                 <i class="fa-solid fa-trophy absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <select id="inputKategori" required class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 bg-white text-slate-700 font-medium">
+                <select id="inputKategori" required class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] bg-white text-slate-700 font-medium">
                   <option value="" disabled selected>Pilih Kategori...</option>
                   <option value="Web Design">Web Design</option>
                   <option value="UI/UX Design">UI/UX Design</option>
@@ -373,18 +378,18 @@
                 WhatsApp / HP <span class="text-slate-400 font-normal">(Opsional)</span>
               </label>
               <div class="relative">
-                <i class="fa-brands fa-whatsapp absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-500 text-sm"></i>
-                <input type="tel" id="inputKontak" placeholder="081234567890" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition">
+                <i class="fa-brands fa-whatsapp absolute left-3.5 top-1/2 -translate-y-1/2 text-[#297810] text-sm"></i>
+                <input type="tel" id="inputKontak" placeholder="081234567890" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] transition">
               </div>
             </div>
 
             <div>
               <label for="inputEmail" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Email Peserta <span class="text-red-500">*</span> <span class="text-sky-600 font-normal">(Struk & QR Otomatis)</span>
+                Email Peserta <span class="text-red-500">*</span> <span class="text-[#186301] font-normal">(Struk & QR Otomatis)</span>
               </label>
               <div class="relative">
-                <i class="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-sky-500 text-sm"></i>
-                <input type="email" id="inputEmail" required placeholder="peserta@example.com" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition font-medium">
+                <i class="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-[#297810] text-sm"></i>
+                <input type="email" id="inputEmail" required placeholder="peserta@example.com" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] transition font-medium">
               </div>
             </div>
           </div>
@@ -395,25 +400,25 @@
               Pilihan Cepat Jenis Barang:
             </label>
             <div class="flex flex-wrap gap-2" id="quickPillsContainer">
-              <button type="button" onclick="toggleQuickPill('Tas Ransel')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200">
+              <button type="button" onclick="toggleQuickPill('Tas Ransel')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 hover:bg-[#eaf7e8] hover:text-[#186301]">
                 🎒 Tas Ransel
               </button>
-              <button type="button" onclick="toggleQuickPill('Laptop / Tablet')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200">
+              <button type="button" onclick="toggleQuickPill('Laptop / Tablet')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 hover:bg-[#eaf7e8] hover:text-[#186301]">
                 💻 Laptop / Tablet
               </button>
-              <button type="button" onclick="toggleQuickPill('Jaket / Hoodie')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200">
+              <button type="button" onclick="toggleQuickPill('Jaket / Hoodie')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 hover:bg-[#eaf7e8] hover:text-[#186301]">
                 🧥 Jaket / Hoodie
               </button>
-              <button type="button" onclick="toggleQuickPill('Payung')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200">
+              <button type="button" onclick="toggleQuickPill('Payung')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 hover:bg-[#eaf7e8] hover:text-[#186301]">
                 ☂️ Payung
               </button>
-              <button type="button" onclick="toggleQuickPill('Helm')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200">
+              <button type="button" onclick="toggleQuickPill('Helm')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 hover:bg-[#eaf7e8] hover:text-[#186301]">
                 🪖 Helm
               </button>
-              <button type="button" onclick="toggleQuickPill('Makanan / Minuman')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200">
+              <button type="button" onclick="toggleQuickPill('Makanan / Minuman')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 hover:bg-[#eaf7e8] hover:text-[#186301]">
                 🍱 Makanan / Minuman
               </button>
-              <button type="button" onclick="toggleQuickPill('Paper Bag / Dus')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200">
+              <button type="button" onclick="toggleQuickPill('Paper Bag / Dus')" class="tag-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 hover:bg-[#eaf7e8] hover:text-[#186301]">
                 🛍️ Paper Bag / Dus
               </button>
             </div>
@@ -426,7 +431,7 @@
             </label>
             <div class="relative">
               <i class="fa-solid fa-bag-shopping absolute left-3.5 top-3 text-slate-400 text-sm"></i>
-              <textarea id="inputBarang" required rows="2" placeholder="Sebutkan rincian atau warna barang (Contoh: Tas Hitam Eiger + Payung Lipat Biru)" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition font-medium"></textarea>
+              <textarea id="inputBarang" required rows="2" placeholder="Sebutkan rincian atau warna barang (Contoh: Tas Hitam Eiger + Payung Lipat Biru)" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] transition font-medium"></textarea>
             </div>
           </div>
 
@@ -438,7 +443,7 @@
               </label>
               <div class="relative">
                 <i class="fa-solid fa-cubes-stacked absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input type="text" id="inputLokasiRak" placeholder="Contoh: Rak A-02 / Loker 14" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition">
+                <input type="text" id="inputLokasiRak" placeholder="Contoh: Rak A-02 / Loker 14" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] transition">
               </div>
             </div>
 
@@ -448,31 +453,31 @@
               </label>
               <div class="relative">
                 <i class="fa-solid fa-note-sticky absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input type="text" id="inputCatatan" placeholder="Contoh: Barang pecah belah, dll." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition">
+                <input type="text" id="inputCatatan" placeholder="Contoh: Barang pecah belah, dll." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] transition">
               </div>
             </div>
           </div>
 
           <!-- Auto Send PDF & Email Checkbox -->
-          <div class="flex items-start gap-3 p-3.5 bg-sky-50/80 border border-sky-200 rounded-2xl text-xs text-slate-700">
-            <input type="checkbox" id="autoSendPdfCheckbox" checked class="w-4 h-4 mt-0.5 text-sky-600 rounded border-slate-300 focus:ring-sky-500 cursor-pointer">
+          <div class="flex items-start gap-3 p-3.5 bg-[#f4faf3] border border-[#b8e2b3] rounded-2xl text-xs text-slate-800">
+            <input type="checkbox" id="autoSendPdfCheckbox" checked class="w-4 h-4 mt-0.5 text-[#186301] rounded border-[#b8e2b3] focus:ring-[#186301] cursor-pointer">
             <label for="autoSendPdfCheckbox" class="cursor-pointer select-none">
-              <span class="font-bold text-sky-900 block flex items-center gap-1.5">
-                <i class="fa-solid fa-file-pdf text-red-500"></i>
-                Otomatis Buat Struk PDF & Kirim Notifikasi ke Email
+              <span class="font-bold text-[#186301] block flex items-center gap-1.5">
+                <i class="fa-solid fa-paper-plane text-[#297810]"></i>
+                Kirim Struk & Kode QR Otomatis ke Email
               </span>
-              <span class="text-slate-500 text-[11px] block mt-0.5">
-                Struk PDF dilampirkan langsung dan dikirim ke alamat email peserta tanpa mengunduh ke perangkat.
+              <span class="text-slate-600 text-[11px] block mt-0.5">
+                Sistem langsung mengirimkan struk digital yang memuat gambar Kode QR utuh ke alamat email peserta secara otomatis.
               </span>
             </label>
           </div>
 
           <!-- Action Buttons -->
           <div class="pt-4 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-slate-100">
-            <button type="button" onclick="resetCheckInForm()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition text-center">
+            <button type="button" onclick="resetCheckInForm()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition text-center border border-slate-200">
               Bersihkan Form
             </button>
-            <button type="submit" class="w-full sm:w-auto px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 shadow-md shadow-sky-600/30 transition flex items-center justify-center gap-2">
+            <button type="submit" class="w-full sm:w-auto px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#186301] hover:bg-[#134e01] shadow-md shadow-[#186301]/20 transition flex items-center justify-center gap-2">
               <i class="fa-solid fa-ticket"></i>
               <span>Simpan & Buat Tiket</span>
             </button>
@@ -490,25 +495,25 @@
     <div id="tab-scanner" class="tab-content hidden max-w-2xl mx-auto space-y-6">
 
       <!-- Local File Protocol Warning / Helper Banner -->
-      <div id="fileProtocolNotice" class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-1.5">
-        <div class="flex items-center gap-2 font-bold text-amber-800">
-          <i class="fa-solid fa-triangle-exclamation text-base text-amber-600"></i>
+      <div id="fileProtocolNotice" class="hidden p-4 rounded-2xl bg-[#f2faf0] border border-[#bde5b8] text-[#154605] text-xs space-y-1.5 shadow-sm">
+        <div class="flex items-center gap-2 font-bold text-[#186301]">
+          <i class="fa-solid fa-triangle-exclamation text-base text-[#297810]"></i>
           <span>Catatan Izin Kamera Browser:</span>
         </div>
-        <p class="leading-relaxed text-amber-800/90">
-          Browser membatasi akses kamera otomatis jika berkas dibuka langsung (protokol <code class="bg-amber-100 px-1 py-0.5 rounded font-mono">file://</code>). Agar kamera aktif sempurna:
+        <p class="leading-relaxed text-[#186301]/90">
+          Browser membatasi akses kamera otomatis jika berkas dibuka langsung (protokol <code class="bg-[#e2f5df] px-1 py-0.5 rounded font-mono">file://</code>). Agar kamera aktif sempurna:
         </p>
-        <ul class="list-disc list-inside space-y-0.5 text-amber-800/90 pl-1">
-          <li>Gunakan ekstensi <strong>Live Server</strong> di VS Code atau jalankan <code class="bg-amber-100 px-1 py-0.5 rounded font-mono">http://localhost</code>.</li>
+        <ul class="list-disc list-inside space-y-0.5 text-[#186301]/90 pl-1">
+          <li>Gunakan ekstensi <strong>Live Server</strong> di VS Code atau jalankan <code class="bg-[#e2f5df] px-1 py-0.5 rounded font-mono">http://localhost</code>.</li>
           <li>Atau gunakan tombol <strong>"Scan dari Foto / Galeri"</strong> dan <strong>"Simulasi Cepat"</strong> di bawah ini (100% langsung berhasil tanpa perlu kamera).</li>
         </ul>
       </div>
 
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 sm:p-7 space-y-5">
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 sm:p-7 space-y-5">
         
         <div class="text-center space-y-1">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-            <i class="fa-solid fa-camera"></i> Pemindai Kamera & File
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#eaf7e8] text-[#186301] border border-[#b8e2b3]">
+            <i class="fa-solid fa-camera text-[#297810]"></i> Pemindai Kamera & File
           </span>
           <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">Scan QR Code Peserta</h2>
           <p class="text-xs text-slate-500">Arahkan kamera ke struk/tiket digital peserta untuk verifikasi serah terima barang</p>
@@ -521,7 +526,7 @@
             <i class="fa-solid fa-expand"></i>
           </button>
           
-          <!-- Animated Laser -->
+          <!-- Animated Laser (Using Neon Lime #2fff00) -->
           <div id="scannerLaser" class="scanner-laser hidden"></div>
 
           <!-- Video Box for html5-qrcode -->
@@ -529,7 +534,7 @@
 
           <!-- Placeholder when scanner is stopped -->
           <div id="scannerPlaceholder" class="text-center p-6 text-slate-400">
-            <div class="w-16 h-16 rounded-2xl bg-slate-800/80 text-slate-300 flex items-center justify-center mx-auto mb-3 text-2xl">
+            <div class="w-16 h-16 rounded-2xl bg-slate-800/80 text-[#77d26f] flex items-center justify-center mx-auto mb-3 text-2xl border border-slate-700">
               <i class="fa-solid fa-qrcode"></i>
             </div>
             <p class="text-xs font-medium text-slate-300">Kamera saat ini belum aktif</p>
@@ -541,21 +546,21 @@
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
           
           <div class="w-full sm:w-auto flex items-center gap-2">
-            <select id="cameraSelect" class="w-full sm:w-auto text-xs px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+            <select id="cameraSelect" class="w-full sm:w-auto text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#297810]/20 font-medium">
               <option value="">Deteksi Kamera...</option>
             </select>
           </div>
 
           <div class="w-full sm:w-auto flex items-center gap-2">
-            <button id="btnStartScan" onclick="startScanner()" class="flex-1 sm:flex-none px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/30">
+            <button id="btnStartScan" onclick="startScanner()" class="flex-1 sm:flex-none px-4 py-2 bg-[#186301] hover:bg-[#134e01] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
               <i class="fa-solid fa-play"></i> Mulai Kamera
             </button>
-            <button id="btnStopScan" onclick="stopScanner()" class="flex-1 sm:flex-none px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 hidden shadow-sm shadow-rose-600/30">
+            <button id="btnStopScan" onclick="stopScanner()" class="flex-1 sm:flex-none px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 hidden shadow-sm">
               <i class="fa-solid fa-stop"></i> Matikan Kamera
             </button>
 
             <!-- Scan from Photo File Button -->
-            <label class="flex-1 sm:flex-none px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-sm shadow-sky-600/30">
+            <label class="flex-1 sm:flex-none px-4 py-2 bg-[#297810] hover:bg-[#186301] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-sm">
               <i class="fa-solid fa-image"></i> Scan Foto QR
               <input type="file" id="qrFileInput" accept="image/*" class="hidden" onchange="handleQrFileScan(event)">
             </label>
@@ -570,7 +575,7 @@
           <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3">
             <div class="text-left w-full sm:w-auto">
               <span class="text-xs font-bold text-slate-800 block flex items-center gap-1.5">
-                <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                <i class="fa-solid fa-wand-magic-sparkles text-[#297810]"></i>
                 Simulasi Cepat (Uji Tanpa Kamera):
               </span>
               <span class="text-[11px] text-slate-500">Pilih salah satu tiket aktif untuk langsung mencoba serah terima</span>
@@ -579,7 +584,7 @@
               <select id="quickTestSelect" class="text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold focus:outline-none">
                 <option value="">Pilih Tiket Aktif...</option>
               </select>
-              <button onclick="handleQuickSimulation()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition whitespace-nowrap">
+              <button onclick="handleQuickSimulation()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition whitespace-nowrap shadow-sm">
                 Uji Scan
               </button>
             </div>
@@ -593,9 +598,9 @@
             <form onsubmit="handleManualCheckOutSearch(event)" class="flex gap-2">
               <div class="relative flex-1">
                 <i class="fa-solid fa-hashtag absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="manualTicketInput" placeholder="Ketik kode tiket (misal: TIK-001) atau Nama Peserta" class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs font-mono uppercase focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500">
+                <input type="text" id="manualTicketInput" placeholder="Ketik kode tiket (misal: TIK-001) atau Nama Peserta" class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs font-mono uppercase focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] bg-white">
               </div>
-              <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
+              <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
                 <i class="fa-solid fa-arrow-right"></i> Proses
               </button>
             </form>
@@ -611,7 +616,7 @@
 
   <!-- ================= MOBILE BOTTOM NAVIGATION BAR ================= -->
   <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-slate-200 z-40 py-1.5 px-3 flex items-center justify-around shadow-lg no-print">
-    <button onclick="switchTab('dashboard')" id="mobile-nav-dashboard" class="mobile-nav-btn flex flex-col items-center py-1 px-3 text-sky-600 font-bold transition">
+    <button onclick="switchTab('dashboard')" id="mobile-nav-dashboard" class="mobile-nav-btn flex flex-col items-center py-1 px-3 text-[#186301] font-bold transition">
       <i class="fa-solid fa-chart-pie text-base"></i>
       <span class="text-[10px] mt-0.5">Data</span>
     </button>
@@ -628,57 +633,57 @@
   <!-- ======================================================== -->
   <!-- MODAL: STRUK / TIKET DIGITAL (QR CODE GENERATOR)         -->
   <!-- ======================================================== -->
-  <div id="ticketModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto no-print">
-    <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-sm sm:max-w-md w-full max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] overflow-y-auto transform transition-all border border-slate-100 my-auto animate-fade-in">
+  <div id="ticketModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto no-print">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm sm:max-w-md w-full overflow-hidden transform transition-all border border-slate-200 my-auto animate-fade-in">
       
-      <!-- Ticket Header Badge -->
-      <div class="bg-gradient-to-r from-sky-600 to-indigo-700 px-4 sm:px-6 py-3 sm:py-4 text-white text-center relative">
+      <!-- Ticket Header Badge in Solid Forest -->
+      <div class="bg-[#186301] px-6 py-4 text-white text-center relative shadow-sm">
         <button onclick="closeTicketModal()" class="absolute right-4 top-4 text-white/80 hover:text-white text-lg w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition">
           <i class="fa-solid fa-xmark"></i>
         </button>
-        <p class="text-[10px] font-bold uppercase tracking-widest text-sky-200">STRUK TIKET RESMI PENITIPAN</p>
+        <p class="text-[10px] font-bold uppercase tracking-widest text-[#77d26f]">STRUK TIKET RESMI PENITIPAN</p>
         <h3 class="text-lg font-extrabold mt-0.5">PCC EVENT CLOAKROOM</h3>
-        <p class="text-xs text-sky-100/90">Simpan tiket ini untuk bukti pengambilan barang</p>
+        <p class="text-xs text-white/80">Simpan tiket ini untuk bukti pengambilan barang</p>
       </div>
 
       <!-- Ticket Body -->
-      <div class="p-3 sm:p-6 space-y-3 sm:space-y-4">
+      <div class="p-6 space-y-4">
         
         <!-- Live Email Auto-Delivery Status Banner -->
-        <div id="modalEmailStatusBanner" class="p-3 rounded-2xl text-xs flex items-center gap-2.5 transition bg-sky-50 border border-sky-200 text-sky-900">
-          <i id="modalEmailStatusIcon" class="fa-solid fa-spinner fa-spin text-sky-600 text-sm"></i>
+        <div id="modalEmailStatusBanner" class="p-3 rounded-xl text-xs flex items-center gap-2.5 transition bg-[#eaf7e8] border border-[#b8e2b3] text-[#186301]">
+          <i id="modalEmailStatusIcon" class="fa-solid fa-spinner fa-spin text-[#297810] text-sm"></i>
           <div class="flex-1">
             <p id="modalEmailStatusText" class="font-bold">Mengirimkan Struk & Kode QR ke Email...</p>
-            <p id="modalEmailStatusSubtext" class="text-[11px] text-sky-700/80">Otomatis diproses tanpa perlu klik kirim</p>
+            <p id="modalEmailStatusSubtext" class="text-[11px] text-[#186301]/80">Otomatis diproses tanpa perlu klik kirim</p>
           </div>
         </div>
 
         <!-- Big Ticket Number -->
-        <div class="text-center bg-slate-50 border-2 border-dashed border-sky-300 rounded-2xl py-3 px-4">
-          <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">NOMOR TIKET PENITIPAN</span>
-          <div id="modalTicketCode" class="font-mono text-2xl sm:text-4xl font-extrabold text-sky-600 tracking-wide sm:tracking-wider my-0.5 break-all">
+        <div class="text-center bg-slate-50 border-2 border-dashed border-[#b8e2b3] rounded-xl py-3 px-4">
+          <span class="text-[10px] uppercase font-bold tracking-wider text-slate-500 block">NOMOR TIKET PENITIPAN</span>
+          <div id="modalTicketCode" class="font-mono text-3xl sm:text-4xl font-extrabold text-[#186301] tracking-wider my-0.5">
             TIK-001
           </div>
-          <span id="modalTicketStatusBadge" class="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
+          <span id="modalTicketStatusBadge" class="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#eaf7e8] text-[#186301] border border-[#b8e2b3]">
             DITITIPKAN
           </span>
         </div>
 
         <!-- Dynamic QR Code Container -->
-        <div class="flex flex-col items-center justify-center p-3 bg-white rounded-2xl border border-slate-200 shadow-sm">
-          <div id="qrcodeContainer" class="p-1.5 sm:p-2 bg-white rounded-xl shadow-inner flex items-center justify-center max-w-full overflow-hidden"></div>
+        <div class="flex flex-col items-center justify-center p-3 bg-white rounded-xl border border-slate-200">
+          <div id="qrcodeContainer" class="p-2 bg-white rounded-lg flex items-center justify-center"></div>
           <p class="text-[11px] text-slate-400 mt-2 text-center font-medium">Tunjukkan kode QR ini ke panitia saat mengambil barang</p>
         </div>
 
         <!-- Details Grid -->
-        <div class="space-y-1.5 sm:space-y-2 text-[11px] sm:text-xs bg-slate-50 p-2.5 sm:p-3.5 rounded-2xl border border-slate-100">
-          <div class="flex justify-between gap-2 py-1 border-b border-slate-200/60">
-            <span class="text-slate-500 font-medium shrink-0">Nama Peserta:</span>
-            <span id="modalTicketName" class="font-bold text-slate-800 text-right break-words min-w-0">Muhammad Budi</span>
+        <div class="space-y-2 text-xs bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+          <div class="flex justify-between py-1 border-b border-slate-200/60">
+            <span class="text-slate-500 font-medium">Nama Peserta:</span>
+            <span id="modalTicketName" class="font-bold text-slate-800 text-right">Muhammad Budi</span>
           </div>
-          <div class="flex justify-between gap-2 py-1 border-b border-slate-200/60">
+          <div class="flex justify-between py-1 border-b border-slate-200/60">
             <span class="text-slate-500 font-medium">Kategori:</span>
-            <span id="modalTicketCategory" class="font-bold text-sky-700 text-right">Web Design</span>
+            <span id="modalTicketCategory" class="font-bold text-[#186301] text-right">Web Design</span>
           </div>
           <div class="flex justify-between py-1 border-b border-slate-200/60">
             <span class="text-slate-500 font-medium">Nomor Kontak:</span>
@@ -686,7 +691,7 @@
           </div>
           <div class="flex justify-between py-1 border-b border-slate-200/60">
             <span class="text-slate-500 font-medium">Email Peserta:</span>
-            <span id="modalTicketEmail" class="font-mono font-semibold text-sky-700 text-right">-</span>
+            <span id="modalTicketEmail" class="font-mono font-semibold text-[#297810] text-right">-</span>
           </div>
           <div class="flex justify-between py-1 border-b border-slate-200/60">
             <span class="text-slate-500 font-medium">Barang:</span>
@@ -694,7 +699,7 @@
           </div>
           <div class="flex justify-between py-1 border-b border-slate-200/60">
             <span class="text-slate-500 font-medium">Lokasi Rak/Loker:</span>
-            <span id="modalTicketRack" class="font-bold text-indigo-600 text-right">Rak A-01</span>
+            <span id="modalTicketRack" class="font-bold text-[#186301] text-right">Rak A-01</span>
           </div>
           <div class="flex justify-between py-1">
             <span class="text-slate-500 font-medium">Waktu Check-In:</span>
@@ -705,21 +710,21 @@
         <!-- Modal Action Buttons Grid -->
         <div class="space-y-2 pt-2">
           <div class="grid grid-cols-2 gap-2">
-            <button onclick="downloadTicketPDF()" class="py-2.5 px-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm shadow-red-600/30">
+            <button onclick="downloadTicketPDF()" class="py-2.5 px-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
               <i class="fa-solid fa-file-pdf"></i> Unduh PDF
             </button>
-            <button onclick="sendTicketToEmail()" class="py-2.5 px-3 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm shadow-sky-600/30">
+            <button onclick="sendTicketToEmail()" class="py-2.5 px-3 bg-[#186301] hover:bg-[#134e01] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
               <i class="fa-solid fa-envelope"></i> Kirim ke Email
             </button>
           </div>
           <div class="grid grid-cols-3 gap-2">
-            <button onclick="shareTicketToWhatsApp()" class="py-2 px-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1 shadow-sm shadow-emerald-600/30">
+            <button onclick="shareTicketToWhatsApp()" class="py-2 px-2 bg-[#25D366] hover:bg-[#1ebc57] text-white rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1 shadow-sm">
               <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
             </button>
             <button onclick="printCurrentTicket()" class="py-2 px-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1">
               <i class="fa-solid fa-print"></i> Cetak
             </button>
-            <button onclick="closeTicketModal()" class="py-2 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold transition">
+            <button onclick="closeTicketModal()" class="py-2 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-bold transition border border-slate-200">
               Tutup
             </button>
           </div>
@@ -734,10 +739,10 @@
   <!-- MODAL: KONFIRMASI CHECK-OUT / PENGAMBILAN DARI SCAN QR   -->
   <!-- ======================================================== -->
   <div id="checkoutConfirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto no-print">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-sm sm:max-w-md w-full overflow-hidden transform transition-all border border-slate-100 my-auto animate-fade-in">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm sm:max-w-md w-full overflow-hidden transform transition-all border border-slate-200 my-auto animate-fade-in">
       
       <!-- Checkout Header -->
-      <div id="checkoutModalHeader" class="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-4 text-white text-center relative">
+      <div id="checkoutModalHeader" class="bg-[#186301] px-6 py-4 text-white text-center relative shadow-sm">
         <button onclick="closeCheckoutModal()" class="absolute right-4 top-4 text-white/80 hover:text-white text-lg w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition">
           <i class="fa-solid fa-xmark"></i>
         </button>
@@ -745,15 +750,15 @@
           <i id="checkoutModalIcon" class="fa-solid fa-box-open"></i>
         </div>
         <h3 id="checkoutModalTitle" class="text-lg font-extrabold">Verifikasi Pengambilan Barang</h3>
-        <p class="text-xs text-emerald-100" id="checkoutModalSubtitle">Data tiket berhasil dipindai oleh sistem</p>
+        <p class="text-xs text-white/80" id="checkoutModalSubtitle">Data tiket berhasil dipindai oleh sistem</p>
       </div>
 
       <!-- Checkout Details Content -->
       <div class="p-6 space-y-4">
         
-        <div class="text-center bg-slate-50 border border-slate-200 rounded-2xl p-4">
-          <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">NOMOR TIKET</span>
-          <div id="checkoutConfirmTicketCode" class="font-mono text-3xl font-extrabold text-slate-800 tracking-wider">
+        <div class="text-center bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <span class="text-[10px] uppercase font-bold tracking-wider text-slate-500 block">NOMOR TIKET</span>
+          <div id="checkoutConfirmTicketCode" class="font-mono text-3xl font-extrabold text-[#186301] tracking-wider">
             TIK-001
           </div>
           <div id="checkoutConfirmStatusBadge" class="mt-2">
@@ -761,14 +766,14 @@
           </div>
         </div>
 
-        <div class="space-y-2.5 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-100">
+        <div class="space-y-2.5 text-xs bg-slate-50 p-4 rounded-xl border border-slate-100">
           <div class="flex justify-between items-center py-1 border-b border-slate-200/60">
             <span class="text-slate-500 font-medium">Pemilik / Peserta:</span>
             <span id="checkoutConfirmName" class="font-bold text-slate-900 text-sm">Budi Pratama</span>
           </div>
           <div class="flex justify-between items-center py-1 border-b border-slate-200/60">
             <span class="text-slate-500 font-medium">Kategori Lomba:</span>
-            <span id="checkoutConfirmCategory" class="font-bold text-sky-700">Web Design</span>
+            <span id="checkoutConfirmCategory" class="font-bold text-[#186301]">Web Design</span>
           </div>
           <div class="flex justify-between items-center py-1 border-b border-slate-200/60">
             <span class="text-slate-500 font-medium">Kontak WhatsApp:</span>
@@ -782,13 +787,13 @@
           </div>
           <div class="flex justify-between items-center py-1 border-b border-slate-200/60">
             <span class="text-slate-500 font-medium">Lokasi Rak / Loker:</span>
-            <span id="checkoutConfirmRack" class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-200">Rak A-01</span>
+            <span id="checkoutConfirmRack" class="font-bold text-[#186301] bg-[#eaf7e8] px-2.5 py-0.5 rounded-lg border border-[#b8e2b3]">Rak A-01</span>
           </div>
           <div class="flex justify-between items-center py-1">
             <span class="text-slate-500 font-medium">Waktu Dititipkan:</span>
             <span id="checkoutConfirmCheckInTime" class="font-mono text-slate-600 font-semibold">01 Nov 2026, 08:30</span>
           </div>
-          <div id="checkoutCompletedInfoRow" class="hidden flex justify-between items-center py-1 text-emerald-700 font-semibold pt-1 border-t border-slate-200">
+          <div id="checkoutCompletedInfoRow" class="hidden flex justify-between items-center py-1 text-[#186301] font-semibold pt-1 border-t border-slate-200">
             <span>Waktu Pengambilan:</span>
             <span id="checkoutConfirmCheckOutTime" class="font-mono font-bold">-</span>
           </div>
@@ -796,14 +801,170 @@
 
         <!-- Checkout Action Button -->
         <div id="checkoutActionButtons" class="pt-2 flex flex-col gap-2">
-          <button id="btnExecuteCheckOut" onclick="executeItemRelease()" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/30">
+          <button id="btnExecuteCheckOut" onclick="executeItemRelease()" class="w-full py-3 px-4 bg-[#186301] hover:bg-[#134e01] text-white rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 shadow-sm">
             <i class="fa-solid fa-hand-holding-hand"></i> Serahkan Barang & Selesaikan
           </button>
-          <button onclick="closeCheckoutModal()" class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+          <button onclick="closeCheckoutModal()" class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition">
             Batal / Kembali
           </button>
         </div>
 
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: PENGATURAN EMAIL (EMAILJS INTEGRATION)            -->
+  <!-- ======================================================== -->
+  <div id="emailConfigModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto no-print">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all border border-slate-200 my-auto animate-fade-in">
+      
+      <!-- Modal Header -->
+      <div class="bg-[#186301] px-6 py-4 text-white relative shadow-sm">
+        <button onclick="closeEmailConfigModal()" class="absolute right-4 top-4 text-white/80 hover:text-white text-lg w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white text-lg">
+            <i class="fa-solid fa-envelope-circle-check"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Integrasi Pengiriman Email</h3>
+            <p class="text-xs text-white/80">EmailJS untuk pengiriman struk otomatis langsung dari browser</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <form onsubmit="saveEmailConfig(event)" class="p-6 space-y-4 text-xs">
+        
+        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 space-y-1.5">
+          <p class="font-bold text-[#186301] flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-info text-[#297810]"></i> Gratis & Tanpa Server Backend:
+          </p>
+          <p class="leading-relaxed">
+            Layanan <a href="https://www.emailjs.com" target="_blank" class="text-[#186301] font-bold underline">EmailJS.com</a> memberikan 200 email/bulan secara gratis. Anda cukup menghubungkan akun Gmail/SMTP di EmailJS dan menyalin 3 kunci di bawah.
+          </p>
+          <p class="text-[11px] text-slate-500">
+            *Jika kunci belum diisi, sistem tetap otomatis mengunduh PDF dan menyediakan tombol kirim cepat via aplikasi email (mailto).
+          </p>
+        </div>
+
+        <div>
+          <label for="emailjsServiceId" class="block font-bold uppercase tracking-wider text-slate-700 mb-1">
+            Service ID <span class="text-red-500">*</span>
+          </label>
+          <input type="text" id="emailjsServiceId" placeholder="Contoh: service_pcc2026" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] font-medium">
+        </div>
+
+        <div>
+          <label for="emailjsTemplateId" class="block font-bold uppercase tracking-wider text-slate-700 mb-1">
+            Template ID <span class="text-red-500">*</span>
+          </label>
+          <input type="text" id="emailjsTemplateId" placeholder="Contoh: template_struk_pcc" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] font-medium">
+        </div>
+
+        <div>
+          <label for="emailjsPublicKey" class="block font-bold uppercase tracking-wider text-slate-700 mb-1">
+            Public Key (API Key) <span class="text-red-500">*</span>
+          </label>
+          <input type="text" id="emailjsPublicKey" placeholder="Contoh: uX92aBCdef123xyz" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#297810]/20 focus:border-[#297810] font-medium">
+        </div>
+
+        <!-- Template Helper Box -->
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800">Format Template EmailJS:</span>
+            <button type="button" onclick="copyEmailTemplateHTML()" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-[#186301] border border-slate-200 rounded-lg text-[11px] font-bold transition flex items-center gap-1 shadow-sm">
+              <i class="fa-solid fa-copy text-[#297810]"></i> Salin Template HTML
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500 leading-relaxed">
+            Template ini otomatis memuat <strong>Kode QR Gambar Asli</strong> (menggunakan parameter <code class="bg-white px-1 py-0.5 border border-slate-200 rounded font-mono">{{qr_code_url}}</code>) sehingga peserta langsung melihat QR code di email mereka!
+          </p>
+        </div>
+
+        <div class="pt-2 flex items-center gap-2">
+          <button type="submit" class="flex-1 py-2.5 px-4 bg-[#186301] hover:bg-[#134e01] text-white rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-sm">
+            <i class="fa-solid fa-floppy-disk"></i> Simpan Kunci
+          </button>
+          <button type="button" onclick="testSendEmailJS()" class="py-2.5 px-4 bg-[#297810] hover:bg-[#186301] text-white rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-paper-plane"></i> Tes Kirim
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- HIGH RESOLUTION PDF RECEIPT TEMPLATE (FOR HTML2PDF)       -->
+  <!-- ======================================================== -->
+  <div id="pdfReceiptContainer">
+    <div style="border: 2px solid #186301; border-radius: 14px; padding: 24px; background: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif;">
+      
+      <!-- PDF Header -->
+      <div style="text-align: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px; margin-bottom: 16px;">
+        <div style="font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #186301; text-transform: uppercase;">BUKTI RESMI PENITIPAN BARANG DIGITAL</div>
+        <h1 style="font-size: 20px; font-weight: 800; color: #186301; margin: 4px 0 2px 0;">PCC EVENT CLOAKROOM</h1>
+        <p style="font-size: 11px; color: #64748b; margin: 0; font-weight: 600;">Sistem Penitipan Barang & Registrasi Peserta Digital</p>
+      </div>
+
+      <!-- Ticket Code Box -->
+      <div style="background: #f8fafc; border: 1.5px dashed #b8e2b3; border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 18px;">
+        <span style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; display: block;">NOMOR TIKET PENITIPAN</span>
+        <div id="pdfTicketCode" style="font-family: monospace; font-size: 28px; font-weight: 800; color: #186301; letter-spacing: 2px; margin: 2px 0;">TIK-001</div>
+        <span style="font-size: 10px; font-weight: 700; background: #eaf7e8; color: #186301; padding: 2px 8px; border-radius: 20px; display: inline-block;">STATUS: DITITIPKAN</span>
+      </div>
+
+      <!-- QR Code Section -->
+      <div style="text-align: center; margin-bottom: 16px;">
+        <div style="display: inline-block; padding: 8px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px;">
+          <div id="pdfQrContainer" style="display: flex; justify-content: center;"></div>
+        </div>
+        <p style="font-size: 10px; color: #64748b; margin: 6px 0 0 0; font-weight: 500;">Tunjukkan Kode QR ini kepada Panitia saat pengambilan barang</p>
+      </div>
+
+      <!-- Details Table -->
+      <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px;">
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 6px 0; color: #64748b; width: 35%;">Nama Peserta</td>
+          <td style="padding: 6px 0; font-weight: bold; color: #0f172a; text-align: right;" id="pdfTicketName">Muhammad Budi</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 6px 0; color: #64748b;">Kategori Lomba</td>
+          <td style="padding: 6px 0; font-weight: bold; color: #186301; text-align: right;" id="pdfTicketCategory">Web Design</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 6px 0; color: #64748b;">Nomor WhatsApp</td>
+          <td style="padding: 6px 0; font-family: monospace; font-weight: 600; color: #0f172a; text-align: right;" id="pdfTicketPhone">-</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 6px 0; color: #64748b;">Email Peserta</td>
+          <td style="padding: 6px 0; font-family: monospace; font-weight: 600; color: #297810; text-align: right;" id="pdfTicketEmail">-</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 6px 0; color: #64748b;">Rincian Barang</td>
+          <td style="padding: 6px 0; font-weight: bold; color: #0f172a; text-align: right;" id="pdfTicketItems">Tas Ransel Eiger Hitam</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 6px 0; color: #64748b;">Lokasi Rak / Loker</td>
+          <td style="padding: 6px 0; font-weight: bold; color: #186301; text-align: right;" id="pdfTicketRack">Rak A-01</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #64748b;">Waktu Check-In</td>
+          <td style="padding: 6px 0; font-family: monospace; color: #475569; text-align: right;" id="pdfTicketTime">01 Nov 2026, 08:30 WIB</td>
+        </tr>
+      </table>
+
+      <!-- Footer Rules -->
+      <div style="border-top: 2px dashed #cbd5e1; padding-top: 10px; font-size: 10px; color: #64748b; line-height: 1.4; text-align: center;">
+        <p style="margin: 0; font-weight: 700; color: #186301;">Ketentuan Pengambilan Barang:</p>
+        <p style="margin: 2px 0 0 0;">1. Struk digital atau PDF ini wajib ditunjukkan saat mengambil barang.<br>
+        2. Panitia berhak memverifikasi identitas pemilik barang sebelum menyerahkan.<br>
+        Terima kasih atas partisipasi dan kerja samanya!</p>
       </div>
 
     </div>
@@ -859,162 +1020,6 @@
       * Harap simpan struk ini *<br>
       Tunjukkan saat serah terima pengambilan barang.<br>
       Terima kasih telah berpartisipasi!
-    </div>
-  </div>
-
-  <!-- ======================================================== -->
-  <!-- MODAL: PENGATURAN EMAIL (EMAILJS INTEGRATION)            -->
-  <!-- ======================================================== -->
-  <div id="emailConfigModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto no-print">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all border border-slate-100 my-auto animate-fade-in">
-      
-      <!-- Modal Header -->
-      <div class="bg-gradient-to-r from-sky-600 to-indigo-700 px-6 py-4 text-white relative">
-        <button onclick="closeEmailConfigModal()" class="absolute right-4 top-4 text-white/80 hover:text-white text-lg w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white text-lg">
-            <i class="fa-solid fa-envelope-circle-check"></i>
-          </div>
-          <div>
-            <h3 class="text-base font-bold text-white">Integrasi Pengiriman Email</h3>
-            <p class="text-xs text-sky-100/90">EmailJS untuk pengiriman struk otomatis langsung dari browser</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal Body -->
-      <form onsubmit="saveEmailConfig(event)" class="p-6 space-y-4 text-xs">
-        
-        <div class="p-3.5 bg-sky-50 rounded-2xl border border-sky-100 text-slate-600 space-y-1.5">
-          <p class="font-bold text-sky-900 flex items-center gap-1.5">
-            <i class="fa-solid fa-circle-info text-sky-600"></i> Gratis & Tanpa Server Backend:
-          </p>
-          <p class="leading-relaxed">
-            Layanan <a href="https://www.emailjs.com" target="_blank" class="text-sky-600 font-bold underline">EmailJS.com</a> memberikan 200 email/bulan secara gratis. Anda cukup menghubungkan akun Gmail/SMTP di EmailJS dan menyalin 3 kunci di bawah.
-          </p>
-          <p class="text-[11px] text-slate-500">
-            *Jika kunci belum diisi, sistem menampilkan peringatan dan tidak akan mengirim atau mengunduh struk secara otomatis. Isi kunci EmailJS untuk pengiriman langsung.
-          </p>
-        </div>
-
-        <div>
-          <label for="emailjsServiceId" class="block font-bold uppercase tracking-wider text-slate-700 mb-1">
-            Service ID <span class="text-red-500">*</span>
-          </label>
-          <input type="text" id="emailjsServiceId" placeholder="Contoh: service_pcc2026" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 font-medium">
-        </div>
-
-        <div>
-          <label for="emailjsTemplateId" class="block font-bold uppercase tracking-wider text-slate-700 mb-1">
-            Template ID <span class="text-red-500">*</span>
-          </label>
-          <input type="text" id="emailjsTemplateId" placeholder="Contoh: template_struk_pcc" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 font-medium">
-        </div>
-
-        <div>
-          <label for="emailjsPublicKey" class="block font-bold uppercase tracking-wider text-slate-700 mb-1">
-            Public Key (API Key) <span class="text-red-500">*</span>
-          </label>
-          <input type="text" id="emailjsPublicKey" placeholder="Contoh: uX92aBCdef123xyz" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 font-medium">
-        </div>
-
-        <!-- Template Helper Box -->
-        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-slate-700">Format Template EmailJS:</span>
-            <button type="button" onclick="copyEmailTemplateHTML()" class="px-2.5 py-1 bg-sky-100 hover:bg-sky-200 text-sky-700 rounded-lg text-[11px] font-bold transition flex items-center gap-1">
-              <i class="fa-solid fa-copy"></i> Salin Template HTML
-            </button>
-          </div>
-          <p class="text-[11px] text-slate-500 leading-relaxed">
-            Template ini otomatis memuat <strong>Kode QR Gambar Asli</strong> (menggunakan parameter <code class="bg-white px-1 py-0.5 border rounded font-mono">{{qr_code_url}}</code>) sehingga peserta langsung melihat QR code di email mereka!
-          </p>
-        </div>
-
-        <div class="pt-2 flex items-center gap-2">
-          <button type="submit" class="flex-1 py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-sm shadow-sky-600/30">
-            <i class="fa-solid fa-floppy-disk"></i> Simpan Kunci
-          </button>
-          <button type="button" onclick="testSendEmailJS()" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow-sm shadow-emerald-600/30">
-            <i class="fa-solid fa-paper-plane"></i> Tes Kirim
-          </button>
-        </div>
-
-      </form>
-
-    </div>
-  </div>
-
-  <!-- ======================================================== -->
-  <!-- HIGH RESOLUTION PDF RECEIPT TEMPLATE (FOR HTML2PDF)       -->
-  <!-- ======================================================== -->
-  <div id="pdfReceiptContainer">
-    <div style="border: 2px solid #0284c7; border-radius: 16px; padding: 26px; background: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif;">
-      
-      <!-- PDF Header -->
-      <div style="text-align: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 14px; margin-bottom: 16px;">
-        <div style="font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #0284c7; text-transform: uppercase;">BUKTI RESMI PENITIPAN BARANG DIGITAL</div>
-        <h1 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 4px 0 2px 0;">PCC EVENT CLOAKROOM</h1>
-        <p style="font-size: 11px; color: #64748b; margin: 0;">Sistem Penitipan Barang & Registrasi Peserta Digital</p>
-      </div>
-
-      <!-- Ticket Code Box -->
-      <div style="background: #f0f9ff; border: 1.5px dashed #0284c7; border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 18px;">
-        <span style="font-size: 10px; font-weight: 700; color: #0369a1; text-transform: uppercase; letter-spacing: 1.5px; display: block;">NOMOR TIKET PENITIPAN</span>
-        <div id="pdfTicketCode" style="font-family: monospace; font-size: 30px; font-weight: 800; color: #0284c7; letter-spacing: 3px; margin: 3px 0;">TIK-001</div>
-        <span style="font-size: 10px; font-weight: 700; background: #fef3c7; color: #92400e; padding: 2px 10px; border-radius: 20px; display: inline-block;">STATUS: DITITIPKAN</span>
-      </div>
-
-      <!-- QR Code Section -->
-      <div style="text-align: center; margin-bottom: 18px;">
-        <div style="display: inline-block; padding: 10px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);">
-          <div id="pdfQrContainer" style="display: flex; justify-content: center;"></div>
-        </div>
-        <p style="font-size: 10px; color: #64748b; margin: 6px 0 0 0; font-weight: 500;">Tunjukkan Kode QR ini kepada Panitia saat pengambilan barang</p>
-      </div>
-
-      <!-- Details Table -->
-      <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px;">
-        <tr style="border-bottom: 1px solid #f1f5f9;">
-          <td style="padding: 7px 0; color: #64748b; width: 35%;">Nama Peserta</td>
-          <td style="padding: 7px 0; font-weight: bold; color: #0f172a; text-align: right;" id="pdfTicketName">Muhammad Budi</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #f1f5f9;">
-          <td style="padding: 7px 0; color: #64748b;">Kategori Lomba</td>
-          <td style="padding: 7px 0; font-weight: bold; color: #0284c7; text-align: right;" id="pdfTicketCategory">Web Design</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #f1f5f9;">
-          <td style="padding: 7px 0; color: #64748b;">Nomor WhatsApp</td>
-          <td style="padding: 7px 0; font-family: monospace; font-weight: 600; color: #0f172a; text-align: right;" id="pdfTicketPhone">-</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #f1f5f9;">
-          <td style="padding: 7px 0; color: #64748b;">Email Peserta</td>
-          <td style="padding: 7px 0; font-family: monospace; font-weight: 600; color: #0284c7; text-align: right;" id="pdfTicketEmail">-</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #f1f5f9;">
-          <td style="padding: 7px 0; color: #64748b;">Rincian Barang</td>
-          <td style="padding: 7px 0; font-weight: bold; color: #0f172a; text-align: right;" id="pdfTicketItems">Tas Ransel Eiger Hitam</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #f1f5f9;">
-          <td style="padding: 7px 0; color: #64748b;">Lokasi Rak / Loker</td>
-          <td style="padding: 7px 0; font-weight: bold; color: #4338ca; text-align: right;" id="pdfTicketRack">Rak A-01</td>
-        </tr>
-        <tr>
-          <td style="padding: 7px 0; color: #64748b;">Waktu Check-In</td>
-          <td style="padding: 7px 0; font-family: monospace; color: #475569; text-align: right;" id="pdfTicketTime">01 Nov 2026, 08:30 WIB</td>
-        </tr>
-      </table>
-
-      <!-- Footer Rules -->
-      <div style="border-top: 2px dashed #cbd5e1; padding-top: 12px; font-size: 10px; color: #64748b; line-height: 1.4; text-align: center;">
-        <p style="margin: 0; font-weight: 700; color: #0f172a;">Ketentuan Pengambilan Barang:</p>
-        <p style="margin: 2px 0 0 0;">1. Struk digital atau PDF ini wajib ditunjukkan saat mengambil barang.<br>
-        2. Panitia berhak memverifikasi identitas pemilik barang sebelum menyerahkan.<br>
-        Terima kasih atas partisipasi dan kerja samanya!</p>
-      </div>
-
     </div>
   </div>
 

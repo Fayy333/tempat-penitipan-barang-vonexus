@@ -1,8 +1,26 @@
-/* Custom Styles & Print Stylesheet for Digital Cloakroom */
+/* Custom Styles & Print Stylesheet for Digital Cloakroom (PCC Event)
+ * Color Palette:
+ * - Neon Lime:   #2fff00
+ * - Leaf Green:  #49a141
+ * - Deep Green:  #297810
+ * - Dark Pine:   #186301
+ * - Mint Sage:   #77d26f
+ */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
+  --color-neon: #2fff00;
+  --color-leaf: #49a141;
+  --color-deep: #297810;
+  --color-dark: #186301;
+  --color-mint: #77d26f;
+  
+  --bg-soft: #f8fafc;
+  --card-bg: #ffffff;
+  --border-soft: #e2e8f0;
+  --border-strong: #cbd5e1;
+
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
@@ -17,91 +35,28 @@ body {
   font-family: var(--font-mono);
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar in Forest Palette */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #edf7eb;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: #a9deb0;
+  border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--color-leaf);
 }
 
-/* Scanner Animation */
+/* Scanner Animation - Using Neon Green Laser #2fff00 */
 .scanner-frame {
   position: relative;
   overflow: hidden;
-  border-radius: 1rem;
-}
-
-.scanner-frame #qr-reader,
-.scanner-frame #qr-reader__scan_region,
-.scanner-frame video {
-  width: 100% !important;
-}
-
-.scanner-frame video {
-  object-fit: cover;
-  min-width: 100%;
-  min-height: 100%;
-}
-
-.scanner-frame #qr-reader {
-  position: absolute;
-  inset: 0;
-  height: 100% !important;
-}
-
-.scanner-frame #qr-reader__scan_region {
-  height: 100% !important;
-  min-height: 100% !important;
-}
-
-.scanner-frame #qr-reader__dashboard,
-.scanner-frame #qr-reader__dashboard_section,
-.scanner-frame #qr-reader__header_message {
-  position: absolute !important;
-  z-index: 15;
-}
-
-.scanner-frame.fullscreen-scanner {
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  border-radius: 0;
-  width: 100vw;
-  height: 100dvh;
-  min-height: 100dvh !important;
-  background: #020617;
-}
-
-.scanner-fullscreen-controls {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 20;
-}
-
-@media (max-width: 640px) {
-  #tab-scanner .scanner-frame {
-    min-height: calc(100dvh - 240px) !important;
-    height: calc(100dvh - 240px);
-  }
-
-  #tab-scanner #qr-reader {
-    height: 100%;
-  }
-
-  #tab-scanner #qr-reader video {
-    height: 100% !important;
-    object-fit: cover;
-  }
+  border-radius: 1.25rem;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.4);
 }
 
 .scanner-laser {
@@ -110,9 +65,9 @@ body {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0) 0%, rgba(16, 185, 129, 1) 50%, rgba(16, 185, 129, 0) 100%);
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.8);
-  animation: laserScan 2.2s infinite ease-in-out;
+  background: linear-gradient(90deg, rgba(47, 255, 0, 0) 0%, #2fff00 50%, rgba(47, 255, 0, 0) 100%);
+  box-shadow: 0 0 18px #2fff00, 0 0 6px #77d26f;
+  animation: laserScan 2.1s infinite ease-in-out;
   z-index: 10;
   pointer-events: none;
 }
@@ -120,7 +75,7 @@ body {
 @keyframes laserScan {
   0% {
     top: 5%;
-    opacity: 0.3;
+    opacity: 0.35;
   }
   50% {
     top: 95%;
@@ -128,51 +83,75 @@ body {
   }
   100% {
     top: 5%;
-    opacity: 0.3;
+    opacity: 0.35;
   }
 }
 
 /* Glass Card Effect */
 .glass-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-soft);
 }
 
-/* Badge Pulse for Active Item */
+/* Pulse Badge for Active Items */
 .badge-pulse {
-  box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
-  animation: pulse-badge 2s infinite;
+  box-shadow: 0 0 0 0 rgba(73, 161, 65, 0.4);
+  animation: pulse-green 2s infinite;
 }
 
-@keyframes pulse-badge {
+.badge-pulse-green {
+  box-shadow: 0 0 0 0 rgba(47, 255, 0, 0.4);
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
   0% {
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
+    box-shadow: 0 0 0 0 rgba(73, 161, 65, 0.4);
   }
   70% {
-    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+    box-shadow: 0 0 0 8px rgba(73, 161, 65, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    box-shadow: 0 0 0 0 rgba(73, 161, 65, 0);
   }
 }
 
 /* Tag Pill Selection */
 .tag-pill {
-  transition: all 0.18s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
 }
+.tag-pill:hover {
+  border-color: var(--color-mint);
+  background-color: #f0fbf0;
+}
 .tag-pill.active {
-  background-color: #0284c7;
+  background-color: var(--color-deep);
   color: #ffffff;
-  border-color: #0284c7;
-  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+  border-color: var(--color-dark);
+  box-shadow: 0 3px 8px rgba(24, 99, 1, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Off-screen Container for High Quality PDF Rendering */
+#pdfReceiptContainer {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 600px;
+  background: #ffffff;
+  color: #152414;
+  padding: 30px;
+  border: 1px solid var(--border-soft);
+  box-sizing: border-box;
+  font-family: var(--font-sans);
 }
 
 /* ========================================================== */
 /* PRINT STYLES - STILISASI STRUK CETAK THERMAL / PAPER SLIP   */
 /* ========================================================== */
 @media print {
-  /* Sembunyikan semua elemen UI kecuali container struk cetak */
   body * {
     visibility: hidden;
   }
@@ -202,51 +181,5 @@ body {
   @page {
     size: 80mm auto;
     margin: 0;
-  }
-}
-
-
-/* Off-screen Container for High Quality PDF Rendering */
-#pdfReceiptContainer {
-  position: fixed;
-  left: -9999px;
-  top: 0;
-  width: 600px;
-  background: #ffffff;
-  color: #0f172a;
-  padding: 32px;
-  border: 1px solid #e2e8f0;
-  box-sizing: border-box;
-  font-family: var(--font-sans);
-}
-
-/* Mobile ticket modal layout */
-@media (max-width: 480px) {
-  #ticketModal {
-    align-items: flex-start !important;
-    padding: 0.5rem !important;
-  }
-
-  #ticketModal > div {
-    margin: 0.25rem auto !important;
-    border-radius: 1rem !important;
-  }
-
-  #qrcodeContainer canvas,
-  #qrcodeContainer img {
-    width: 150px !important;
-    height: 150px !important;
-    max-width: 100% !important;
-  }
-
-  #modalTicketName,
-  #modalTicketCategory,
-  #modalTicketPhone,
-  #modalTicketEmail,
-  #modalTicketItems,
-  #modalTicketRack,
-  #modalTicketTime {
-    max-width: 58%;
-    overflow-wrap: anywhere;
   }
 }

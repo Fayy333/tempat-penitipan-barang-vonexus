@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DIGITAL CLOAKROOM & REGISTRATION SYSTEM (Sistem Penitipan Barang Digital)
  * PCC Event - Organisasi & UKM
  */
@@ -125,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(syncWithSupabase, 5000);
   initLiveClock();
   updateNextTicketBadge();
-  initCameraList();
   updateQuickTestDropdown();
 });
 
@@ -278,23 +277,23 @@ function switchTab(tabId) {
 
   // Update Desktop Tab Buttons
   document.querySelectorAll('.nav-tab-btn').forEach(btn => {
-    btn.classList.remove('bg-white', 'text-sky-600', 'shadow-sm');
+    btn.classList.remove('bg-white', 'text-[#186301]', 'shadow-sm', 'border', 'border-[#77d26f]/20');
     btn.classList.add('text-slate-600');
   });
   const activeDesktopBtn = document.getElementById(`nav-${tabId}`);
   if (activeDesktopBtn) {
-    activeDesktopBtn.classList.add('bg-white', 'text-sky-600', 'shadow-sm');
+    activeDesktopBtn.classList.add('bg-white', 'text-[#186301]', 'shadow-sm', 'border', 'border-[#77d26f]/20');
     activeDesktopBtn.classList.remove('text-slate-600');
   }
 
   // Update Mobile Tab Buttons
   document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-    btn.classList.remove('text-sky-600', 'font-bold');
+    btn.classList.remove('text-[#186301]', 'font-bold');
     btn.classList.add('text-slate-500');
   });
   const activeMobileBtn = document.getElementById(`mobile-nav-${tabId}`);
   if (activeMobileBtn) {
-    activeMobileBtn.classList.add('text-sky-600', 'font-bold');
+    activeMobileBtn.classList.add('text-[#186301]', 'font-bold');
     activeMobileBtn.classList.remove('text-slate-500');
   }
 
@@ -354,7 +353,7 @@ function handleCheckInSubmit(event) {
       icon: 'warning',
       title: 'Data Belum Lengkap',
       text: 'Harap isi Nama Peserta, Kategori Lomba, dan Rincian Barang.',
-      confirmButtonColor: '#0284c7'
+      confirmButtonColor: '#297810'
     });
     return;
   }
@@ -481,7 +480,7 @@ function renderTable() {
   filtered.forEach(item => {
     const isActive = item.status === 'ACTIVE';
     const statusBadge = isActive
-      ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200 badge-pulse">
+      ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#eaf7e8] text-[#186301] border border-[#b8e2b3] badge-pulse">
            <i class="fa-solid fa-clock"></i> Dititipkan
          </span>`
       : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
@@ -489,24 +488,24 @@ function renderTable() {
          </span>`;
 
     const actionButton = isActive
-      ? `<button onclick="triggerDirectCheckOut('${item.id}')" title="Serahkan Barang" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-sm">
+      ? `<button onclick="triggerDirectCheckOut('${item.id}')" title="Serahkan Barang" class="px-3 py-1.5 bg-[#297810] hover:bg-[#186301] text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-sm shadow-[#297810]/20">
            <i class="fa-solid fa-hand-holding-hand"></i> Serahkan
          </button>`
-      : `<button onclick="undoItemRelease('${item.id}')" title="Batalkan / Kembalikan ke Dititipkan" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium flex items-center gap-1 transition">
+      : `<button onclick="undoItemRelease('${item.id}')" title="Batalkan / Kembalikan ke Dititipkan" class="px-2.5 py-1.5 bg-[#f3fbf2] hover:bg-[#e3f6e1] text-[#186301] border border-[#d8ecd4] rounded-lg text-xs font-medium flex items-center gap-1 transition">
            <i class="fa-solid fa-rotate-left"></i> Batal Ambil
          </button>`;
 
     tableHtml += `
-      <tr class="hover:bg-slate-50/80 transition">
-        <td class="py-3 px-4 font-mono font-bold text-sky-700 whitespace-nowrap">
+      <tr class="hover:bg-[#f4f9f2]/70 transition">
+        <td class="py-3 px-4 font-mono font-bold text-[#186301] whitespace-nowrap">
           ${item.id}
         </td>
         <td class="py-3 px-4">
           <div class="font-bold text-slate-800">${item.name}</div>
           <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-1.5">
-            <span class="text-sky-600 font-semibold">${item.category}</span>
+            <span class="text-[#297810] font-semibold">${item.category}</span>
             ${item.phone && item.phone !== '-' ? `<span>• <i class="fa-brands fa-whatsapp text-emerald-600"></i> ${item.phone}</span>` : ''}
-            ${item.email && item.email !== '-' ? `<span>• <i class="fa-solid fa-envelope text-sky-500"></i> ${item.email}</span>` : ''}
+            ${item.email && item.email !== '-' ? `<span>• <i class="fa-solid fa-envelope text-[#49a141]"></i> ${item.email}</span>` : ''}
           </div>
         </td>
         <td class="py-3 px-4 max-w-xs">
@@ -514,20 +513,20 @@ function renderTable() {
           ${item.notes && item.notes !== '-' ? `<span class="text-[10px] text-slate-400 italic">Catatan: ${item.notes}</span>` : ''}
         </td>
         <td class="py-3 px-4 whitespace-nowrap">
-          <span class="inline-block px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+          <span class="inline-block px-2 py-0.5 rounded-md text-xs font-semibold bg-[#f3fbf2] text-[#186301] border border-[#d8ecd4]">
             ${item.rack || 'Umum'}
           </span>
         </td>
         <td class="py-3 px-4 whitespace-nowrap text-[11px] text-slate-500 font-mono">
-          <div><i class="fa-solid fa-arrow-down text-amber-500 mr-1"></i> ${item.checkInTime}</div>
-          ${item.checkOutTime ? `<div><i class="fa-solid fa-arrow-up text-emerald-500 mr-1"></i> ${item.checkOutTime}</div>` : ''}
+          <div><i class="fa-solid fa-arrow-down text-[#297810] mr-1"></i> ${item.checkInTime}</div>
+          ${item.checkOutTime ? `<div><i class="fa-solid fa-arrow-up text-[#49a141] mr-1"></i> ${item.checkOutTime}</div>` : ''}
         </td>
         <td class="py-3 px-4 text-center whitespace-nowrap">
           ${statusBadge}
         </td>
         <td class="py-3 px-4 text-center whitespace-nowrap">
           <div class="flex items-center justify-center gap-1.5">
-            <button onclick="viewTicketReceipt('${item.id}')" title="Lihat & Cetak Tiket" class="p-2 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition">
+            <button onclick="viewTicketReceipt('${item.id}')" title="Lihat & Cetak Tiket" class="p-2 text-slate-500 hover:text-[#186301] hover:bg-[#f3fbf2] rounded-lg transition">
               <i class="fa-solid fa-qrcode text-base"></i>
             </button>
             <button onclick="downloadTicketPDF('${item.id}')" title="Unduh Struk PDF" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
@@ -549,44 +548,44 @@ function renderTable() {
   filtered.forEach(item => {
     const isActive = item.status === 'ACTIVE';
     const statusBadge = isActive
-      ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+      ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#eaf7e8] text-[#186301] border border-[#b8e2b3]">
            <i class="fa-solid fa-clock"></i> Dititipkan
          </span>`
-      : `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-           <i class="fa-solid fa-check"></i> Sudah Diambil
+      : `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#e3f6e1] text-[#186301] border border-[#77d26f]/40">
+           <i class="fa-solid fa-check text-[#49a141]"></i> Sudah Diambil
          </span>`;
 
     cardHtml += `
-      <div class="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-3">
+      <div class="p-4 bg-white rounded-3xl border border-[#d8ecd4] shadow-sm space-y-3">
         <div class="flex items-center justify-between">
-          <span class="font-mono text-base font-extrabold text-sky-600">${item.id}</span>
+          <span class="font-mono text-base font-extrabold text-[#186301]">${item.id}</span>
           ${statusBadge}
         </div>
         
         <div>
           <h4 class="font-bold text-slate-900 text-sm">${item.name}</h4>
-          <p class="text-xs text-sky-700 font-medium">${item.category}</p>
+          <p class="text-xs text-[#297810] font-semibold">${item.category}</p>
         </div>
 
-        <div class="p-2.5 bg-slate-50 rounded-xl text-xs space-y-1 text-slate-700">
+        <div class="p-2.5 bg-[#f4f9f2] rounded-2xl text-xs space-y-1 text-slate-700 border border-[#d8ecd4]">
           <div><strong class="text-slate-500">Barang:</strong> ${item.items}</div>
           <div class="flex justify-between">
             <span><strong class="text-slate-500">Rak:</strong> ${item.rack || '-'}</span>
             <span class="font-mono text-[11px] text-slate-500">${item.checkInTime}</span>
           </div>
-          ${item.checkOutTime ? `<div class="text-emerald-700 font-semibold"><strong class="text-slate-500">Diambil:</strong> ${item.checkOutTime}</div>` : ''}
+          ${item.checkOutTime ? `<div class="text-[#186301] font-semibold"><strong class="text-slate-500">Diambil:</strong> ${item.checkOutTime}</div>` : ''}
         </div>
 
         <div class="flex items-center gap-2 pt-1">
-          <button onclick="viewTicketReceipt('${item.id}')" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+          <button onclick="viewTicketReceipt('${item.id}')" class="flex-1 py-2 px-3 bg-[#f3fbf2] hover:bg-[#e3f6e1] text-[#186301] border border-[#d8ecd4] rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
             <i class="fa-solid fa-qrcode"></i> Tiket QR
           </button>
           ${isActive ? `
-            <button onclick="triggerDirectCheckOut('${item.id}')" class="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm">
+            <button onclick="triggerDirectCheckOut('${item.id}')" class="flex-1 py-2 px-3 bg-[#297810] hover:bg-[#186301] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm shadow-[#297810]/20">
               <i class="fa-solid fa-hand-holding-hand"></i> Serahkan
             </button>
           ` : `
-            <button onclick="undoItemRelease('${item.id}')" class="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-medium transition">
+            <button onclick="undoItemRelease('${item.id}')" class="py-2 px-3 bg-[#f3fbf2] hover:bg-[#e3f6e1] text-[#186301] border border-[#d8ecd4] rounded-xl text-xs font-medium transition">
               <i class="fa-solid fa-rotate-left"></i> Undo
             </button>
           `}
@@ -652,7 +651,7 @@ function openTicketModal(record) {
 
   const statusBadge = document.getElementById('modalTicketStatusBadge');
   if (record.status === 'ACTIVE') {
-    statusBadge.className = 'inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800';
+    statusBadge.className = 'inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#eaf7e8] text-[#186301] border border-[#b8e2b3]';
     statusBadge.textContent = 'DITITIPKAN';
   } else {
     statusBadge.className = 'inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
@@ -767,7 +766,7 @@ function saveEmailConfig(event) {
       icon: 'warning',
       title: 'Data Belum Lengkap',
       text: 'Harap isi Service ID, Template ID, dan Public Key akun EmailJS Anda.',
-      confirmButtonColor: '#0284c7'
+      confirmButtonColor: '#297810'
     });
     return;
   }
@@ -807,7 +806,7 @@ function testSendEmailJS() {
     showCancelButton: true,
     confirmButtonText: 'Kirim Tes',
     cancelButtonText: 'Batal',
-    confirmButtonColor: '#0284c7',
+    confirmButtonColor: '#297810',
     showLoaderOnConfirm: true,
     preConfirm: (targetEmail) => {
       if (!targetEmail) {
@@ -841,7 +840,7 @@ function testSendEmailJS() {
       icon: 'error',
       title: 'Pengiriman Gagal',
       text: 'Pastikan Service ID, Template ID, dan Public Key sudah benar serta Template di EmailJS memiliki variabel {{to_email}}.',
-      confirmButtonColor: '#0284c7'
+      confirmButtonColor: '#297810'
     });
   });
 }
@@ -967,7 +966,7 @@ async function sendTicketToEmail(record, showPromptIfNoConfig = true) {
       showCancelButton: true,
       confirmButtonText: 'Kirim Struk',
       cancelButtonText: 'Batal',
-      confirmButtonColor: '#0284c7'
+      confirmButtonColor: '#297810'
     }).then(res => {
       if (res.isConfirmed && res.value) {
         target.email = res.value;
@@ -1120,8 +1119,8 @@ function updateModalEmailBanner(type, title, subtext) {
     banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-emerald-50 border border-emerald-200 text-emerald-950 transition';
     icon.className = 'fa-solid fa-circle-check text-emerald-600 text-sm';
   } else if (type === 'warning') {
-    banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-amber-50 border border-amber-200 text-amber-950 transition';
-    icon.className = 'fa-solid fa-triangle-exclamation text-amber-600 text-sm';
+    banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-rose-50 border border-rose-200 text-rose-950 transition';
+    icon.className = 'fa-solid fa-triangle-exclamation text-rose-600 text-sm';
   } else {
     banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-slate-50 border border-slate-200 text-slate-700 transition';
     icon.className = 'fa-solid fa-circle-info text-sky-600 text-sm';
@@ -1144,27 +1143,27 @@ function copyEmailTemplateHTML() {
     .pcc-details td:first-child { width: 38% !important; }
   }
 </style>
-<div class="pcc-email-card" style="font-family: Arial, sans-serif; width: 100%; max-width: 500px; box-sizing: border-box; margin: 0 auto; padding: 20px; border: 2px solid #0284c7; border-radius: 12px; background: #ffffff;">
-  <div style="text-align: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px;">
-    <h2 class="pcc-email-title" style="color: #0284c7; margin: 0; font-size: 20px;">PCC EVENT CLOAKROOM</h2>
-    <p style="color: #64748b; font-size: 11px; margin: 4px 0 0 0;">Bukti Resmi Penitipan Barang & Registrasi</p>
+<div class="pcc-email-card" style="font-family: Arial, sans-serif; width: 100%; max-width: 500px; box-sizing: border-box; margin: 0 auto; padding: 20px; border: 2px solid #297810; border-radius: 14px; background: #ffffff;">
+  <div style="text-align: center; border-bottom: 2px dashed #b2dfab; padding-bottom: 12px;">
+    <h2 class="pcc-email-title" style="color: #186301; margin: 0; font-size: 20px; font-weight: bold;">PCC EVENT CLOAKROOM</h2>
+    <p style="color: #49a141; font-size: 11px; margin: 4px 0 0 0; font-weight: 600;">Bukti Resmi Penitipan Barang & Registrasi</p>
   </div>
-  <div style="text-align: center; background: #f0f9ff; padding: 12px; margin: 15px 0; border-radius: 8px;">
-    <div style="font-size: 11px; color: #0369a1; font-weight: bold;">NOMOR TIKET</div>
-    <div class="pcc-ticket-code" style="font-size: 28px; font-weight: bold; color: #0284c7; letter-spacing: 2px; font-family: monospace; word-break: break-word;">{{ticket_code}}</div>
+  <div style="text-align: center; background: #f3fbf2; border: 1.5px dashed #77d26f; padding: 12px; margin: 15px 0; border-radius: 10px;">
+    <div style="font-size: 11px; color: #186301; font-weight: bold; letter-spacing: 1px;">NOMOR TIKET</div>
+    <div class="pcc-ticket-code" style="font-size: 28px; font-weight: bold; color: #186301; letter-spacing: 2px; font-family: monospace; word-break: break-word;">{{ticket_code}}</div>
   </div>
   <div style="text-align: center; margin: 15px 0;">
-    <img class="pcc-qr" src="{{qr_code_url}}" alt="QR Code Tiket" width="160" height="160" style="max-width: 100%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 5px; background: #fff;" />
+    <img class="pcc-qr" src="{{qr_code_url}}" alt="QR Code Tiket" width="160" height="160" style="max-width: 100%; height: auto; border: 1.5px solid #b2dfab; border-radius: 10px; padding: 6px; background: #fff;" />
     <p style="font-size: 11px; color: #64748b; margin-top: 6px;">Tunjukkan Kode QR ini kepada Panitia saat pengambilan barang</p>
   </div>
   <table class="pcc-details" style="width: 100%; table-layout: fixed; font-size: 12px; border-collapse: collapse; margin-bottom: 12px;">
-    <tr><td style="padding: 6px 0; color: #64748b; width: 35%;">Nama Peserta</td><td style="padding: 6px 0; font-weight: bold; text-align: right;">{{to_name}}</td></tr>
-    <tr><td style="padding: 6px 0; color: #64748b;">Kategori Lomba</td><td style="padding: 6px 0; font-weight: bold; color: #0284c7; text-align: right;">{{category}}</td></tr>
-    <tr><td style="padding: 6px 0; color: #64748b;">Rincian Barang</td><td style="padding: 6px 0; font-weight: bold; text-align: right;">{{items}}</td></tr>
-    <tr><td style="padding: 6px 0; color: #64748b;">Lokasi Rak/Loker</td><td style="padding: 6px 0; font-weight: bold; color: #4338ca; text-align: right;">{{rack}}</td></tr>
-    <tr><td style="padding: 6px 0; color: #64748b;">Waktu Check-In</td><td style="padding: 6px 0; font-family: monospace; text-align: right;">{{check_in_time}}</td></tr>
+    <tr><td style="padding: 6px 0; color: #64748b; width: 35%;">Nama Peserta</td><td style="padding: 6px 0; font-weight: bold; text-align: right; color: #0f172a;">{{to_name}}</td></tr>
+    <tr><td style="padding: 6px 0; color: #64748b;">Kategori Lomba</td><td style="padding: 6px 0; font-weight: bold; color: #186301; text-align: right;">{{category}}</td></tr>
+    <tr><td style="padding: 6px 0; color: #64748b;">Rincian Barang</td><td style="padding: 6px 0; font-weight: bold; text-align: right; color: #0f172a;">{{items}}</td></tr>
+    <tr><td style="padding: 6px 0; color: #64748b;">Lokasi Rak/Loker</td><td style="padding: 6px 0; font-weight: bold; color: #186301; text-align: right;">{{rack}}</td></tr>
+    <tr><td style="padding: 6px 0; color: #64748b;">Waktu Check-In</td><td style="padding: 6px 0; font-family: monospace; text-align: right; color: #475569;">{{check_in_time}}</td></tr>
   </table>
-  <div style="border-top: 1px dashed #cbd5e1; margin-top: 15px; padding-top: 10px; font-size: 11px; color: #94a3b8; text-align: center;">
+  <div style="border-top: 1px dashed #b2dfab; margin-top: 15px; padding-top: 10px; font-size: 11px; color: #186301; text-align: center;">
     Harap simpan email ini sebagai bukti verifikasi yang sah. Terima kasih atas partisipasi Anda!
   </div>
 </div>`;
@@ -1174,7 +1173,7 @@ function copyEmailTemplateHTML() {
       icon: 'success',
       title: 'Template Berhasil Disalin!',
       text: 'Buka EmailJS ➔ Email Templates ➔ Tempel (paste) kode HTML ini pada Content template Anda.',
-      confirmButtonColor: '#0284c7'
+      confirmButtonColor: '#297810'
     });
   }).catch(() => {
     Swal.fire({
@@ -1222,7 +1221,7 @@ function fallbackEmailClient(target) {
     showCancelButton: true,
     confirmButtonText: '<i class="fa-solid fa-paper-plane mr-1.5"></i> Buka Aplikasi Email',
     cancelButtonText: 'Selesai',
-    confirmButtonColor: '#0284c7'
+    confirmButtonColor: '#297810'
   }).then(res => {
     if (res.isConfirmed) {
       window.open(`mailto:${target.email}?subject=${subject}&body=${body}`, '_blank');
@@ -1459,7 +1458,7 @@ function showScannerError() {
           </ul>
         </div>
       `,
-      confirmButtonColor: '#0284c7'
+      confirmButtonColor: '#297810'
     });
 }
 
@@ -1500,7 +1499,7 @@ function handleQrFileScan(event) {
         icon: 'error',
         title: 'QR Code Tidak Terbaca',
         text: 'Pastikan gambar yang diunggah memuat kode QR yang jelas dan tidak blur.',
-        confirmButtonColor: '#0284c7'
+        confirmButtonColor: '#297810'
       });
     })
     .finally(() => {
@@ -1538,7 +1537,7 @@ function handleQuickSimulation() {
       icon: 'info',
       title: 'Pilih Tiket Terlebih Dahulu',
       text: 'Pilih salah satu nomor tiket aktif pada pilihan dropdown simulasi.',
-      confirmButtonColor: '#0284c7'
+      confirmButtonColor: '#297810'
     });
     return;
   }
@@ -1581,7 +1580,7 @@ function onQrScanSuccess(decodedText) {
       icon: 'error',
       title: 'Tiket Tidak Ditemukan',
       text: `Nomor tiket "${targetTicketId}" tidak terdaftar di sistem.`,
-      confirmButtonColor: '#0284c7'
+      confirmButtonColor: '#297810'
     }).then(() => {
       if (html5QrScanner && html5QrScanner.isScanning) {
         try { html5QrScanner.resume(); } catch(e) {}
@@ -1613,7 +1612,7 @@ function handleManualCheckOutSearch(event) {
       icon: 'error',
       title: 'Data Tidak Ditemukan',
       text: `Tidak ditemukan titipan dengan kode/nama: "${inputVal}".`,
-      confirmButtonColor: '#0284c7'
+      confirmButtonColor: '#297810'
     });
     return;
   }
@@ -1646,7 +1645,7 @@ function openCheckoutModal(record) {
     header.className = 'bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-4 text-white text-center relative';
     title.textContent = 'Verifikasi Serah Terima Barang';
     subtitle.textContent = 'Barang siap diserahkan kepada peserta';
-    badgeContainer.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+    badgeContainer.innerHTML = `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#eaf7e8] text-[#186301] border border-[#b8e2b3]">
       <i class="fa-solid fa-clock"></i> Status: Sedang Dititipkan
     </span>`;
     completedRow.classList.add('hidden');
@@ -1726,7 +1725,7 @@ function undoItemRelease(ticketId) {
     text: `Ubah status tiket ${ticketId} kembali menjadi "Dititipkan"?`,
     icon: 'question',
     showCancelButton: true,
-    confirmButtonColor: '#0284c7',
+    confirmButtonColor: '#297810',
     cancelButtonColor: '#64748b',
     confirmButtonText: 'Ya, Kembalikan',
     cancelButtonText: 'Batal'
@@ -1829,7 +1828,7 @@ function loadSampleData() {
     text: 'Data contoh akan ditambahkan ke dalam daftar penitipan.',
     icon: 'question',
     showCancelButton: true,
-    confirmButtonColor: '#0284c7',
+    confirmButtonColor: '#297810',
     cancelButtonColor: '#64748b',
     confirmButtonText: 'Muat Contoh',
     cancelButtonText: 'Batal'
