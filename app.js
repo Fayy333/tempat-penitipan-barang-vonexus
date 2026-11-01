@@ -11,6 +11,10 @@ const DEFAULT_EMAILJS_CONFIG = {
   templateId: 'template_y1wx48y',
   publicKey: '_q25jujQorzTJDOTU'
 };
+const SUPABASE_CONFIG = {
+  url: 'https://iaafpcvuwbodxuzehpof.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYWZwY3Z1d2JvZHh1emVocG9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzI4NDEsImV4cCI6MjEwOTEwODg0MX0.4wdU2ADPc2Q1lceW913QClyM_WdSfhenoL465lmGMNY'
+};
 
 // Global State
 let cloakroomData = [];
@@ -116,6 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   loadData();
+  syncWithSupabase();
+  setInterval(syncWithSupabase, 5000);
   initLiveClock();
   updateNextTicketBadge();
   initCameraList();
@@ -169,6 +175,63 @@ function loadData() {
 // Save Data to LocalStorage
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cloakroomData));
+  cloakroomData.forEach(saveRecordToSupabase);
+}
+
+async function supabaseRequest(path, options = {}) {
+  const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${path}`, {
+    ...options,
+    headers: {
+      apikey: SUPABASE_CONFIG.anonKey,
+      Authorization: `Bearer ${SUPABASE_CONFIG.anonKey}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+      ...(options.headers || {})
+    }
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || `Supabase error: ${response.status}`);
+  }
+  return response.status === 204 ? null : response.json();
+}
+
+async function syncWithSupabase() {
+  try {
+    const rows = await supabaseRequest('cloakroom_records?select=id,data&order=updated_at.asc');
+    if (Array.isArray(rows)) {
+      cloakroomData = rows.map(row => ({ id: row.id, ...row.data }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cloakroomData));
+      renderDashboardStats();
+      renderTable();
+      updateNextTicketBadge();
+    }
+  } catch (error) {
+    console.warn('Supabase read failed:', error.message);
+  }
+}
+
+async function saveRecordToSupabase(record) {
+  try {
+    const { id, ...data } = record;
+    await supabaseRequest('cloakroom_records?on_conflict=id', {
+      method: 'POST',
+      headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify([{ id, data, updated_at: new Date().toISOString() }])
+    });
+  } catch (error) {
+    console.error('Supabase save failed:', error);
+  }
+}
+
+async function deleteRecordFromSupabase(ticketId) {
+  try {
+    await supabaseRequest(`cloakroom_records?id=eq.${encodeURIComponent(ticketId)}`, {
+      method: 'DELETE'
+    });
+  } catch (error) {
+    console.error('Supabase delete failed:', error);
+  }
 }
 
 // Next Ticket Code Generator (TIK-001, TIK-002, etc.)
@@ -1539,6 +1602,7 @@ function deleteRecord(ticketId) {
   }).then(result => {
     if (result.isConfirmed) {
       cloakroomData = cloakroomData.filter(d => d.id !== ticketId);
+      deleteRecordFromSupabase(ticketId);
       saveData();
       renderDashboardStats();
       renderTable();
@@ -1637,6 +1701,9 @@ function clearAllData() {
   }).then(result => {
     if (result.isConfirmed) {
       cloakroomData = [];
+      supabaseRequest('cloakroom_records?id=not.is.null', { method: 'DELETE' }).catch(error => {
+        console.error('Supabase clear failed:', error);
+      });
       saveData();
       renderDashboardStats();
       renderTable();
