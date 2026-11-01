@@ -155,3 +155,34 @@ body {
   box-sizing: border-box;
   font-family: var(--font-sans);
 }
+
+/* Mobile ticket modal layout */
+@media (max-width: 480px) {
+  #ticketModal {
+    align-items: flex-start !important;
+    padding: 0.5rem !important;
+  }
+
+  #ticketModal > div {
+    margin: 0.25rem auto !important;
+    border-radius: 1rem !important;
+  }
+
+  #qrcodeContainer canvas,
+  #qrcodeContainer img {
+    width: 150px !important;
+    height: 150px !important;
+    max-width: 100% !important;
+  }
+
+  #modalTicketName,
+  #modalTicketCategory,
+  #modalTicketPhone,
+  #modalTicketEmail,
+  #modalTicketItems,
+  #modalTicketRack,
+  #modalTicketTime {
+    max-width: 58%;
+    overflow-wrap: anywhere;
+  }
+}

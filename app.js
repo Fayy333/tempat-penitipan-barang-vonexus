@@ -328,12 +328,6 @@ function handleCheckInSubmit(event) {
 
   // AUTOMATIC ZERO-CLICK PDF & EMAIL DELIVERY
   if (autoSendPdf) {
-    // 1. Automatically generate & download PDF
-    setTimeout(() => {
-      generateTicketPDF(newRecord, true);
-    }, 400);
-
-    // 2. Automatically dispatch email in background (no buttons required!)
     if (email && email !== '-') {
       dispatchAutomaticEmail(newRecord);
     }
@@ -580,7 +574,7 @@ function openTicketModal(record) {
     if (config && config.serviceId && config.templateId && config.publicKey) {
       updateModalEmailBanner('sending', 'Mengirimkan Struk & Kode QR ke Email...', `Tujuan: ${record.email}`);
     } else {
-      updateModalEmailBanner('ready', 'PDF Struk Resmi Otomatis Terunduh', `Email peserta: ${record.email} (Aktifkan EmailJS untuk kirim otomatis)`);
+      updateModalEmailBanner('ready', 'Pengiriman Otomatis Belum Aktif', `Email peserta: ${record.email}. Konfigurasikan EmailJS di menu Opsi.`);
     }
   } else {
     updateModalEmailBanner('none', 'Email Tidak Dicantumkan', 'Peserta dapat mengambil foto QR atau cetak tiket fisik.');
@@ -611,6 +605,15 @@ function openTicketModal(record) {
   renderQRCodeImage('printQrCodeContainer', qrPayload, 140);
 
   // Also prepare PDF container
+  document.getElementById('pdfTicketCode').textContent = record.id;
+  document.getElementById('pdfTicketName').textContent = record.name;
+  document.getElementById('pdfTicketCategory').textContent = record.category;
+  document.getElementById('pdfTicketPhone').textContent = record.phone || '-';
+  const pdfEmailEl = document.getElementById('pdfTicketEmail');
+  if (pdfEmailEl) pdfEmailEl.textContent = record.email || '-';
+  document.getElementById('pdfTicketItems').textContent = record.items;
+  document.getElementById('pdfTicketRack').textContent = record.rack || 'Umum';
+  document.getElementById('pdfTicketTime').textContent = record.checkInTime;
   const pdfQrEl = document.getElementById('pdfQrContainer');
   if (pdfQrEl) {
     renderQRCodeImage('pdfQrContainer', qrPayload, 130);
@@ -808,7 +811,14 @@ function generateTicketPDF(record, shouldDownload = true) {
     if (shouldDownload) {
       return html2pdf().set(opt).from(element).save();
     } else {
-      return html2pdf().set(opt).from(element).outputPdf('datauristring');
+      return new Promise(resolve => {
+        setTimeout(() => {
+          html2pdf().set(opt).from(element).outputPdf('datauristring').then(resolve).catch(error => {
+            console.error('PDF generation error:', error);
+            resolve(null);
+          });
+        }, 180);
+      });
     }
   } else {
     console.warn('html2pdf library is not loaded');
@@ -825,7 +835,7 @@ function downloadTicketPDF(ticketId = null) {
 }
 
 // Send Ticket Receipt to Participant Email
-function sendTicketToEmail(record, showPromptIfNoConfig = true) {
+async function sendTicketToEmail(record, showPromptIfNoConfig = true) {
   const target = record || currentActiveTicketForReceipt;
   if (!target) return;
 
@@ -860,6 +870,11 @@ function sendTicketToEmail(record, showPromptIfNoConfig = true) {
   if (config && config.serviceId && config.templateId && config.publicKey && typeof emailjs !== 'undefined') {
     updateModalEmailBanner('sending', 'Mengirimkan Struk & Kode QR ke Email...', `Tujuan: ${target.email}`);
 
+    const pdfDataUri = await generateTicketPDF(target, false);
+    const pdfBase64 = typeof pdfDataUri === 'string'
+      ? pdfDataUri.replace(/^data:application\/pdf;base64,/, '')
+      : null;
+
     const templateParams = {
       to_email: target.email,
       to_name: target.name,
@@ -872,6 +887,15 @@ function sendTicketToEmail(record, showPromptIfNoConfig = true) {
       qr_code_url: qrCodeUrl,
       notes: target.notes || '-'
     };
+    if (pdfBase64) {
+      templateParams.attachments = [{
+        name: `Struk_Penitipan_${target.id}.pdf`,
+        content: pdfBase64,
+        encoding: 'base64',
+        type: 'application/pdf'
+      }];
+      templateParams.pdf_attachment = templateParams.attachments[0];
+    }
 
     emailjs.send(config.serviceId, config.templateId, templateParams, config.publicKey)
       .then(() => {
@@ -892,21 +916,15 @@ function sendTicketToEmail(record, showPromptIfNoConfig = true) {
       .catch(err => {
         console.error('EmailJS Send Error:', err);
         updateModalEmailBanner('warning', 'Pengiriman Otomatis EmailJS Terkendala', 'Periksa Service / Template ID di menu Opsi.');
-        if (showPromptIfNoConfig) {
-          fallbackEmailClient(target);
-        }
       });
   } else {
     // If EmailJS is not configured yet
-    updateModalEmailBanner('info', 'PDF Struk Resmi Otomatis Terunduh', `Email peserta: ${target.email} (Aktifkan EmailJS di menu Opsi untuk kirim otomatis)`);
-    if (showPromptIfNoConfig) {
-      fallbackEmailClient(target);
-    }
+    updateModalEmailBanner('warning', 'Pengiriman Otomatis Belum Aktif', `Email peserta: ${target.email}. Konfigurasikan EmailJS di menu Opsi agar struk dikirim langsung.`);
   }
 }
 
 // Automatically Dispatch Email with Live QR Code in Background (Hands-free zero-click!)
-function dispatchAutomaticEmail(record) {
+async function dispatchAutomaticEmail(record) {
   if (!record || !record.email || record.email === '-') return;
 
   const config = getEmailJSConfig();
@@ -914,6 +932,11 @@ function dispatchAutomaticEmail(record) {
 
   if (config && config.serviceId && config.templateId && config.publicKey && typeof emailjs !== 'undefined') {
     updateModalEmailBanner('sending', 'Mengirimkan Struk & Kode QR ke Email...', `Tujuan: ${record.email}`);
+
+    const pdfDataUri = await generateTicketPDF(record, false);
+    const pdfBase64 = typeof pdfDataUri === 'string'
+      ? pdfDataUri.replace(/^data:application\/pdf;base64,/, '')
+      : null;
 
     const templateParams = {
       to_email: record.email,
@@ -927,6 +950,15 @@ function dispatchAutomaticEmail(record) {
       qr_code_url: qrCodeUrl,
       notes: record.notes || '-'
     };
+    if (pdfBase64) {
+      templateParams.attachments = [{
+        name: `Struk_Penitipan_${record.id}.pdf`,
+        content: pdfBase64,
+        encoding: 'base64',
+        type: 'application/pdf'
+      }];
+      templateParams.pdf_attachment = templateParams.attachments[0];
+    }
 
     emailjs.send(config.serviceId, config.templateId, templateParams, config.publicKey)
       .then(() => {
@@ -949,7 +981,7 @@ function dispatchAutomaticEmail(record) {
         updateModalEmailBanner('warning', 'Pengiriman Otomatis Terkendala', 'Periksa Service/Template ID EmailJS di menu Opsi.');
       });
   } else {
-    updateModalEmailBanner('info', 'PDF Struk Resmi Telah Otomatis Terunduh', `Email peserta: ${record.email}. Aktifkan EmailJS di Opsi untuk pengiriman otomatis tanpa klik.`);
+    updateModalEmailBanner('warning', 'Pengiriman Otomatis Belum Aktif', `Email peserta: ${record.email}. Konfigurasikan EmailJS di menu Opsi agar struk dikirim langsung.`);
   }
 }
 
@@ -983,20 +1015,31 @@ function updateModalEmailBanner(type, title, subtext) {
 
 // Copy Ready-to-Use EmailJS HTML Template (with QR Image variable)
 function copyEmailTemplateHTML() {
-  const template = `<div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 2px solid #0284c7; border-radius: 12px; background: #ffffff;">
+  const template = `<style>
+  .pcc-details td { overflow-wrap: anywhere; word-break: break-word; }
+  @media only screen and (max-width: 480px) {
+    .pcc-email-card { padding: 14px !important; border-radius: 10px !important; }
+    .pcc-email-title { font-size: 17px !important; }
+    .pcc-ticket-code { font-size: 22px !important; letter-spacing: 1px !important; word-break: break-word !important; }
+    .pcc-qr { width: 140px !important; height: 140px !important; }
+    .pcc-details td { font-size: 11px !important; padding: 7px 2px !important; }
+    .pcc-details td:first-child { width: 38% !important; }
+  }
+</style>
+<div class="pcc-email-card" style="font-family: Arial, sans-serif; width: 100%; max-width: 500px; box-sizing: border-box; margin: 0 auto; padding: 20px; border: 2px solid #0284c7; border-radius: 12px; background: #ffffff;">
   <div style="text-align: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px;">
-    <h2 style="color: #0284c7; margin: 0; font-size: 20px;">PCC EVENT CLOAKROOM</h2>
+    <h2 class="pcc-email-title" style="color: #0284c7; margin: 0; font-size: 20px;">PCC EVENT CLOAKROOM</h2>
     <p style="color: #64748b; font-size: 11px; margin: 4px 0 0 0;">Bukti Resmi Penitipan Barang & Registrasi</p>
   </div>
   <div style="text-align: center; background: #f0f9ff; padding: 12px; margin: 15px 0; border-radius: 8px;">
     <div style="font-size: 11px; color: #0369a1; font-weight: bold;">NOMOR TIKET</div>
-    <div style="font-size: 28px; font-weight: bold; color: #0284c7; letter-spacing: 2px; font-family: monospace;">{{ticket_code}}</div>
+    <div class="pcc-ticket-code" style="font-size: 28px; font-weight: bold; color: #0284c7; letter-spacing: 2px; font-family: monospace; word-break: break-word;">{{ticket_code}}</div>
   </div>
   <div style="text-align: center; margin: 15px 0;">
-    <img src="{{qr_code_url}}" alt="QR Code Tiket" width="160" height="160" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 5px; background: #fff;" />
+    <img class="pcc-qr" src="{{qr_code_url}}" alt="QR Code Tiket" width="160" height="160" style="max-width: 100%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 5px; background: #fff;" />
     <p style="font-size: 11px; color: #64748b; margin-top: 6px;">Tunjukkan Kode QR ini kepada Panitia saat pengambilan barang</p>
   </div>
-  <table style="width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 12px;">
+  <table class="pcc-details" style="width: 100%; table-layout: fixed; font-size: 12px; border-collapse: collapse; margin-bottom: 12px;">
     <tr><td style="padding: 6px 0; color: #64748b; width: 35%;">Nama Peserta</td><td style="padding: 6px 0; font-weight: bold; text-align: right;">{{to_name}}</td></tr>
     <tr><td style="padding: 6px 0; color: #64748b;">Kategori Lomba</td><td style="padding: 6px 0; font-weight: bold; color: #0284c7; text-align: right;">{{category}}</td></tr>
     <tr><td style="padding: 6px 0; color: #64748b;">Rincian Barang</td><td style="padding: 6px 0; font-weight: bold; text-align: right;">{{items}}</td></tr>
