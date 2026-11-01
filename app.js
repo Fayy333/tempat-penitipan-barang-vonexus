@@ -342,7 +342,7 @@ function handleCheckInSubmit(event) {
   const nama = document.getElementById('inputNama').value.trim();
   const kategori = document.getElementById('inputKategori').value;
   const kontak = document.getElementById('inputKontak').value.trim() || '-';
-  const email = document.getElementById('inputEmail').value.trim() || '-';
+  const email = normalizeParticipantEmail(document.getElementById('inputEmail').value);
   const barang = document.getElementById('inputBarang').value.trim();
   const rak = document.getElementById('inputLokasiRak').value.trim() || 'Umum';
   const catatan = document.getElementById('inputCatatan').value.trim() || '-';
@@ -743,6 +743,32 @@ function getEmailJSConfig() {
   }
 }
 
+function normalizeParticipantEmail(email) {
+  const normalized = typeof email === 'string' ? email.trim().toLowerCase() : '';
+  if (!normalized || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) return '-';
+  return normalized;
+}
+
+function buildEmailTemplateParams(record, targetEmail, qrCodeUrl) {
+  const email = normalizeParticipantEmail(targetEmail);
+  return {
+    to_email: email,
+    email: email,
+    participant_email: email,
+    recipient_email: email,
+    user_email: email,
+    to_name: record.name,
+    ticket_code: record.id,
+    category: record.category,
+    phone: record.phone || '-',
+    items: record.items,
+    rack: record.rack || 'Umum',
+    check_in_time: record.checkInTime,
+    qr_code_url: qrCodeUrl,
+    notes: record.notes || '-'
+  };
+}
+
 function openEmailConfigModal() {
   const config = getEmailJSConfig();
   document.getElementById('emailjsServiceId').value = config.serviceId || DEFAULT_EMAILJS_CONFIG.serviceId;
@@ -815,6 +841,10 @@ function testSendEmailJS() {
       }
       return emailjs.send(serviceId, templateId, {
         to_email: targetEmail,
+        email: targetEmail,
+        participant_email: targetEmail,
+        recipient_email: targetEmail,
+        user_email: targetEmail,
         to_name: "Peserta Uji Coba",
         ticket_code: "TIK-TEST",
         category: "Uji Coba Sistem",
@@ -839,7 +869,7 @@ function testSendEmailJS() {
     Swal.fire({
       icon: 'error',
       title: 'Pengiriman Gagal',
-      text: 'Pastikan Service ID, Template ID, dan Public Key sudah benar serta Template di EmailJS memiliki variabel {{to_email}}.',
+      text: 'Pastikan Service ID, Template ID, dan Public Key sudah benar. Pada EmailJS, isi kolom To Email template dengan {{to_email}} atau {{email}}, bukan alamat email tetap.',
       confirmButtonColor: '#297810'
     });
   });
@@ -955,6 +985,7 @@ function downloadTicketPDF(ticketId = null) {
 async function sendTicketToEmail(record, showPromptIfNoConfig = true) {
   const target = record || currentActiveTicketForReceipt;
   if (!target) return;
+  target.email = normalizeParticipantEmail(target.email);
 
   // If email not provided, prompt for email
   if (!target.email || target.email === '-') {
@@ -969,7 +1000,16 @@ async function sendTicketToEmail(record, showPromptIfNoConfig = true) {
       confirmButtonColor: '#297810'
     }).then(res => {
       if (res.isConfirmed && res.value) {
-        target.email = res.value;
+        target.email = normalizeParticipantEmail(res.value);
+        if (target.email === '-') {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Email Tidak Valid',
+            text: 'Masukkan alamat email peserta yang benar.',
+            confirmButtonColor: '#297810'
+          });
+          return;
+        }
         saveData();
         renderTable();
         const modalEmail = document.getElementById('modalTicketEmail');
@@ -992,18 +1032,7 @@ async function sendTicketToEmail(record, showPromptIfNoConfig = true) {
       ? pdfDataUri.replace(/^data:application\/pdf;base64,/, '')
       : null;
 
-    const templateParams = {
-      to_email: target.email,
-      to_name: target.name,
-      ticket_code: target.id,
-      category: target.category,
-      phone: target.phone || '-',
-      items: target.items,
-      rack: target.rack || 'Umum',
-      check_in_time: target.checkInTime,
-      qr_code_url: qrCodeUrl,
-      notes: target.notes || '-'
-    };
+    const templateParams = buildEmailTemplateParams(target, target.email, qrCodeUrl);
     if (pdfBase64) {
       templateParams.attachments = [{
         name: `Struk_Penitipan_${target.id}.pdf`,
@@ -1043,6 +1072,8 @@ async function sendTicketToEmail(record, showPromptIfNoConfig = true) {
 // Automatically Dispatch Email with Live QR Code in Background (Hands-free zero-click!)
 async function dispatchAutomaticEmail(record) {
   if (!record || !record.email || record.email === '-') return;
+  record.email = normalizeParticipantEmail(record.email);
+  if (record.email === '-') return;
 
   const config = getEmailJSConfig();
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(record.id)}`;
@@ -1055,18 +1086,7 @@ async function dispatchAutomaticEmail(record) {
       ? pdfDataUri.replace(/^data:application\/pdf;base64,/, '')
       : null;
 
-    const templateParams = {
-      to_email: record.email,
-      to_name: record.name,
-      ticket_code: record.id,
-      category: record.category,
-      phone: record.phone || '-',
-      items: record.items,
-      rack: record.rack || 'Umum',
-      check_in_time: record.checkInTime,
-      qr_code_url: qrCodeUrl,
-      notes: record.notes || '-'
-    };
+    const templateParams = buildEmailTemplateParams(record, record.email, qrCodeUrl);
     if (pdfBase64) {
       templateParams.attachments = [{
         name: `Struk_Penitipan_${record.id}.pdf`,
@@ -1338,6 +1358,24 @@ function configureScannerVideoForIOS() {
     reader.__scannerVideoObserver = new MutationObserver(configureVideo);
     reader.__scannerVideoObserver.observe(reader, { childList: true, subtree: true });
   }
+
+  if (!reader.__scannerVideoVerified) {
+    reader.__scannerVideoVerified = true;
+    setTimeout(() => {
+      const video = reader.querySelector('video');
+      const isBlank = !video ||
+        video.readyState < 2 ||
+        video.videoWidth === 0 ||
+        video.videoHeight === 0;
+
+      if (isBlank && html5QrScanner && html5QrScanner.isScanning && !reader.__scannerVideoRetry) {
+        reader.__scannerVideoRetry = true;
+        html5QrScanner.stop().catch(() => {}).finally(() => {
+          setTimeout(() => startScanner(), 300);
+        });
+      }
+    }, 1800);
+  }
 }
 
 async function startScanner() {
@@ -1348,28 +1386,7 @@ async function startScanner() {
   const btnStop = document.getElementById('btnStopScan');
   const cameraSelect = document.getElementById('cameraSelect');
   configureScannerVideoForIOS();
-
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const manuallySelectedCamera = cameraSelect && cameraSelect.dataset.manualSelection === 'true';
-
-  if (isIOS && !manuallySelectedCamera && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    try {
-      const permissionStream = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: {
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
-      });
-      permissionStream.getTracks().forEach(track => track.stop());
-    } catch (error) {
-      console.warn('iOS camera preflight permission failed:', error);
-      showScannerError();
-      return;
-    }
-  }
 
   if (html5QrScanner && html5QrScanner.isScanning) {
     return;
@@ -1381,7 +1398,7 @@ async function startScanner() {
 
   const cameraId = manuallySelectedCamera && cameraSelect.value
     ? cameraSelect.value
-    : { facingMode: { exact: "environment" } };
+    : { facingMode: { ideal: "environment" } };
 
   const config = {
     fps: 15,
@@ -1467,6 +1484,11 @@ function stopScanner() {
   const placeholder = document.getElementById('scannerPlaceholder');
   const btnStart = document.getElementById('btnStartScan');
   const btnStop = document.getElementById('btnStopScan');
+  const reader = document.getElementById('qr-reader');
+  if (reader) {
+    reader.__scannerVideoVerified = false;
+    reader.__scannerVideoRetry = false;
+  }
 
   if (html5QrScanner && html5QrScanner.isScanning) {
     html5QrScanner.stop().then(() => {
