@@ -52,7 +52,7 @@ const SAMPLE_DATA = [
   {
     id: "TIK-001",
     name: "Ahmad Farhan",
-    category: "Web Design",
+    category: "LPIKM",
     phone: "081234567891",
     email: "farhan.dev@gmail.com",
     items: "Tas Ransel Eiger Hitam + Tumbler Biru",
@@ -67,7 +67,7 @@ const SAMPLE_DATA = [
   {
     id: "TIK-002",
     name: "Siti Rahmawati",
-    category: "UI/UX Design",
+    category: "BMC",
     phone: "085712345678",
     email: "rahma.siti@gmail.com",
     items: "Tote Bag Putih Kanvas + Payung Lipat",
@@ -82,7 +82,7 @@ const SAMPLE_DATA = [
   {
     id: "TIK-003",
     name: "Dwi Prasetyo",
-    category: "Competitive Programming",
+    category: "Cerdas Cermat",
     phone: "089698765432",
     email: "dwiprasetyo@yahoo.com",
     items: "Tas Selempang Abu-abu",
