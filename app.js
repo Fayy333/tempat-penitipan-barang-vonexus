@@ -301,9 +301,6 @@ function switchTab(tabId) {
   // Scanner lifecycle management
   if (tabId === 'scanner') {
     updateQuickTestDropdown();
-    if (window.location.protocol !== 'file:') {
-      startScanner();
-    }
   } else {
     stopScanner();
   }
@@ -874,23 +871,65 @@ function generateTicketPDF(record, shouldDownload = true) {
     margin: [6, 6, 6, 6],
     filename: filename,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2.2, useCORS: true, logging: false },
+    html2canvas: {
+      scale: 2.2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: 700
+    },
     jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
   };
 
   if (typeof html2pdf !== 'undefined') {
-    if (shouldDownload) {
-      return html2pdf().set(opt).from(element).save();
-    } else {
-      return new Promise(resolve => {
-        setTimeout(() => {
-          html2pdf().set(opt).from(element).outputPdf('datauristring').then(resolve).catch(error => {
-            console.error('PDF generation error:', error);
-            resolve(null);
-          });
-        }, 180);
-      });
-    }
+    return new Promise(async resolve => {
+      const originalPosition = {
+        left: element.style.left,
+        top: element.style.top,
+        zIndex: element.style.zIndex,
+        visibility: element.style.visibility
+      };
+
+      // html2canvas must be able to see the template in the browser viewport.
+      // Keeping it far off-screen (left: -9999px) can produce a blank PDF.
+      element.style.left = '0px';
+      element.style.top = '0px';
+      element.style.zIndex = '2147483647';
+      element.style.visibility = 'visible';
+
+      try {
+        if (document.fonts && document.fonts.ready) {
+          await document.fonts.ready;
+        }
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        await new Promise(r => setTimeout(r, 300));
+
+        const images = Array.from(element.querySelectorAll('img'));
+        await Promise.all(images.map(img => img.complete ? Promise.resolve() : new Promise(r => {
+          img.onload = r;
+          img.onerror = r;
+        })));
+
+        const worker = html2pdf().set(opt).from(element);
+        if (shouldDownload) {
+          await worker.save();
+          resolve(true);
+        } else {
+          const pdfDataUri = await worker.outputPdf('datauristring');
+          resolve(pdfDataUri);
+        }
+      } catch (error) {
+        console.error('PDF generation error:', error);
+        resolve(shouldDownload ? false : null);
+      } finally {
+        element.style.left = originalPosition.left;
+        element.style.top = originalPosition.top;
+        element.style.zIndex = originalPosition.zIndex;
+        element.style.visibility = originalPosition.visibility;
+      }
+    });
   } else {
     console.warn('html2pdf library is not loaded');
     return Promise.resolve(null);
@@ -901,7 +940,15 @@ function generateTicketPDF(record, shouldDownload = true) {
 function downloadTicketPDF(ticketId = null) {
   const target = ticketId ? cloakroomData.find(d => d.id === ticketId) : currentActiveTicketForReceipt;
   if (target) {
-    generateTicketPDF(target, true);
+    generateTicketPDF(target, true).then(result => {
+      if (result === false) {
+        Swal.fire({
+          icon: 'error',
+          title: 'PDF Gagal Dibuat',
+          text: 'Struk tidak dapat dirender. Periksa koneksi atau muat ulang halaman.'
+        });
+      }
+    });
   }
 }
 
@@ -1266,13 +1313,64 @@ function toggleScannerFullscreen() {
   }
 }
 
-function startScanner() {
+function configureScannerVideoForIOS() {
+  const reader = document.getElementById('qr-reader');
+  if (!reader) return;
+
+  const configureVideo = () => {
+    reader.querySelectorAll('video').forEach(video => {
+      video.setAttribute('autoplay', '');
+      video.setAttribute('muted', '');
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
+      video.muted = true;
+      video.playsInline = true;
+      video.style.width = '100%';
+      video.style.height = '100%';
+      video.style.objectFit = 'cover';
+      if (video.paused) {
+        video.play().catch(() => {});
+      }
+    });
+  };
+
+  configureVideo();
+  if (!reader.__scannerVideoObserver) {
+    reader.__scannerVideoObserver = new MutationObserver(configureVideo);
+    reader.__scannerVideoObserver.observe(reader, { childList: true, subtree: true });
+  }
+}
+
+async function startScanner() {
   scannerRearRetryPending = true;
   const laser = document.getElementById('scannerLaser');
   const placeholder = document.getElementById('scannerPlaceholder');
   const btnStart = document.getElementById('btnStartScan');
   const btnStop = document.getElementById('btnStopScan');
   const cameraSelect = document.getElementById('cameraSelect');
+  configureScannerVideoForIOS();
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const manuallySelectedCamera = cameraSelect && cameraSelect.dataset.manualSelection === 'true';
+
+  if (isIOS && !manuallySelectedCamera && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    try {
+      const permissionStream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      });
+      permissionStream.getTracks().forEach(track => track.stop());
+    } catch (error) {
+      console.warn('iOS camera preflight permission failed:', error);
+      showScannerError();
+      return;
+    }
+  }
 
   if (html5QrScanner && html5QrScanner.isScanning) {
     return;
@@ -1282,7 +1380,6 @@ function startScanner() {
     html5QrScanner = new Html5Qrcode("qr-reader");
   }
 
-  const manuallySelectedCamera = cameraSelect && cameraSelect.dataset.manualSelection === 'true';
   const cameraId = manuallySelectedCamera && cameraSelect.value
     ? cameraSelect.value
     : { facingMode: { exact: "environment" } };
@@ -1315,6 +1412,7 @@ function startScanner() {
     placeholder.classList.add('hidden');
     btnStart.classList.add('hidden');
     btnStop.classList.remove('hidden');
+    configureScannerVideoForIOS();
     initCameraList();
   }).catch(err => {
     console.error('Error starting html5QrScanner', err);
@@ -1334,6 +1432,7 @@ function startScanner() {
         placeholder.classList.add('hidden');
         btnStart.classList.add('hidden');
         btnStop.classList.remove('hidden');
+        configureScannerVideoForIOS();
         initCameraList();
       }).catch(() => {
         showScannerError();
