@@ -601,6 +601,8 @@ function renderQRCodeImage(containerId, textToEncode, size = 170) {
   const container = document.getElementById(containerId);
   if (!container) return;
   container.innerHTML = '';
+  container.style.backgroundColor = '#ffffff';
+  container.style.padding = '10px';
   
   if (typeof QRCode !== 'undefined') {
     new QRCode(container, {
@@ -609,7 +611,7 @@ function renderQRCodeImage(containerId, textToEncode, size = 170) {
       height: size,
       colorDark: "#000000",
       colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.M // Medium level = larger blocks, scans 10x faster & easier!
+      correctLevel: QRCode.CorrectLevel.H
     });
   } else {
     container.innerHTML = `<p class="text-xs text-red-500">QR Code library loading...</p>`;
@@ -661,7 +663,7 @@ function openTicketModal(record) {
   // QR Code payload: Encode Ticket ID directly (e.g. TIK-001) for maximum scan clarity & speed!
   const qrPayload = record.id;
 
-  renderQRCodeImage('qrcodeContainer', qrPayload, 170);
+  renderQRCodeImage('qrcodeContainer', qrPayload, 210);
 
   // Also prepare printable container
   document.getElementById('printTicketCode').textContent = record.id;
@@ -671,7 +673,7 @@ function openTicketModal(record) {
   document.getElementById('printTicketItems').textContent = record.items;
   document.getElementById('printTicketRack').textContent = record.rack || 'Umum';
   document.getElementById('printTicketTime').textContent = record.checkInTime;
-  renderQRCodeImage('printQrCodeContainer', qrPayload, 140);
+  renderQRCodeImage('printQrCodeContainer', qrPayload, 180);
 
   // Also prepare PDF container
   document.getElementById('pdfTicketCode').textContent = record.id;
@@ -685,7 +687,7 @@ function openTicketModal(record) {
   document.getElementById('pdfTicketTime').textContent = record.checkInTime;
   const pdfQrEl = document.getElementById('pdfQrContainer');
   if (pdfQrEl) {
-    renderQRCodeImage('pdfQrContainer', qrPayload, 130);
+    renderQRCodeImage('pdfQrContainer', qrPayload, 180);
   }
 
   // Show Modal
@@ -891,7 +893,7 @@ function generateTicketPDF(record, shouldDownload = true) {
   document.getElementById('pdfTicketTime').textContent = target.checkInTime;
 
   // Render sharp QR code for PDF
-  renderQRCodeImage('pdfQrContainer', target.id, 130);
+  renderQRCodeImage('pdfQrContainer', target.id, 180);
 
   const element = document.getElementById('pdfReceiptContainer');
   const filename = `Struk_Penitipan_${target.id}_${(target.name || 'Peserta').replace(/\s+/g, '_')}.pdf`;
@@ -1021,7 +1023,7 @@ async function sendTicketToEmail(record, showPromptIfNoConfig = true) {
   }
 
   const config = getEmailJSConfig();
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(target.id)}`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&qzone=4&ecc=M&data=${encodeURIComponent(target.id)}`;
 
   // If EmailJS is properly configured, send directly in the background
   if (config && config.serviceId && config.templateId && config.publicKey && typeof emailjs !== 'undefined') {
@@ -1076,7 +1078,7 @@ async function dispatchAutomaticEmail(record) {
   if (record.email === '-') return;
 
   const config = getEmailJSConfig();
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(record.id)}`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&qzone=4&ecc=M&data=${encodeURIComponent(record.id)}`;
 
   if (config && config.serviceId && config.templateId && config.publicKey && typeof emailjs !== 'undefined') {
     updateModalEmailBanner('sending', 'Mengirimkan Struk & Kode QR ke Email...', `Tujuan: ${record.email}`);
@@ -1173,7 +1175,7 @@ function copyEmailTemplateHTML() {
     <div class="pcc-ticket-code" style="font-size: 28px; font-weight: bold; color: #186301; letter-spacing: 2px; font-family: monospace; word-break: break-word;">{{ticket_code}}</div>
   </div>
   <div style="text-align: center; margin: 15px 0;">
-    <img class="pcc-qr" src="{{qr_code_url}}" alt="QR Code Tiket" width="160" height="160" style="max-width: 100%; height: auto; border: 1.5px solid #b2dfab; border-radius: 10px; padding: 6px; background: #fff;" />
+    <img class="pcc-qr" src="{{qr_code_url}}" alt="QR Code Tiket" width="180" height="180" style="max-width: 100%; height: auto; border: 1.5px solid #b2dfab; border-radius: 10px; padding: 6px; background: #fff;" />
     <p style="font-size: 11px; color: #64748b; margin-top: 6px;">Tunjukkan Kode QR ini kepada Panitia saat pengambilan barang</p>
   </div>
   <table class="pcc-details" style="width: 100%; table-layout: fixed; font-size: 12px; border-collapse: collapse; margin-bottom: 12px;">
@@ -1578,19 +1580,31 @@ function onQrScanSuccess(decodedText) {
     } catch(e) {}
   }
 
-  // Extract Ticket ID: Could be JSON `{"ticket":"TIK-001"}` or plain `TIK-001`
+  // Accept plain ticket IDs, JSON payloads, and URLs containing a ticket ID.
   let targetTicketId = decodedText.trim();
   try {
     const parsed = JSON.parse(decodedText);
-    if (parsed && parsed.ticket) {
-      targetTicketId = parsed.ticket;
-    }
+    targetTicketId = parsed.ticket || parsed.ticketCode || parsed.ticket_code || parsed.id || targetTicketId;
   } catch (e) {
-    // Plain string format
+    try {
+      const url = new URL(targetTicketId);
+      targetTicketId = url.searchParams.get('ticket')
+        || url.searchParams.get('ticketCode')
+        || url.searchParams.get('id')
+        || url.pathname.split('/').pop()
+        || targetTicketId;
+    } catch (urlError) {
+      // Plain string format
+    }
   }
 
-  // Normalize ticket code
-  const match = targetTicketId.match(/TIK-\d+/i);
+  let ticketLookupText = targetTicketId;
+  try {
+    ticketLookupText = decodeURIComponent(targetTicketId);
+  } catch (e) {
+    // Keep the original text if it is not valid URI encoding.
+  }
+  const match = ticketLookupText.match(/TIK-\d+/i);
   if (match) {
     targetTicketId = match[0].toUpperCase();
   }
