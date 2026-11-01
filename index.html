@@ -380,11 +380,11 @@
 
             <div>
               <label for="inputEmail" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Email Peserta <span class="text-sky-600 font-bold">(Kirim PDF)</span>
+                Email Peserta <span class="text-red-500">*</span> <span class="text-sky-600 font-normal">(Struk & QR Otomatis)</span>
               </label>
               <div class="relative">
                 <i class="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-sky-500 text-sm"></i>
-                <input type="email" id="inputEmail" placeholder="peserta@example.com" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition font-medium">
+                <input type="email" id="inputEmail" required placeholder="peserta@example.com" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition font-medium">
               </div>
             </div>
           </div>
@@ -640,6 +640,15 @@
       <!-- Ticket Body -->
       <div class="p-6 space-y-4">
         
+        <!-- Live Email Auto-Delivery Status Banner -->
+        <div id="modalEmailStatusBanner" class="p-3 rounded-2xl text-xs flex items-center gap-2.5 transition bg-sky-50 border border-sky-200 text-sky-900">
+          <i id="modalEmailStatusIcon" class="fa-solid fa-spinner fa-spin text-sky-600 text-sm"></i>
+          <div class="flex-1">
+            <p id="modalEmailStatusText" class="font-bold">Mengirimkan Struk & Kode QR ke Email...</p>
+            <p id="modalEmailStatusSubtext" class="text-[11px] text-sky-700/80">Otomatis diproses tanpa perlu klik kirim</p>
+          </div>
+        </div>
+
         <!-- Big Ticket Number -->
         <div class="text-center bg-slate-50 border-2 border-dashed border-sky-300 rounded-2xl py-3 px-4">
           <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">NOMOR TIKET PENITIPAN</span>
@@ -905,6 +914,19 @@
             Public Key (API Key) <span class="text-red-500">*</span>
           </label>
           <input type="text" id="emailjsPublicKey" placeholder="Contoh: uX92aBCdef123xyz" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 font-medium">
+        </div>
+
+        <!-- Template Helper Box -->
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-700">Format Template EmailJS:</span>
+            <button type="button" onclick="copyEmailTemplateHTML()" class="px-2.5 py-1 bg-sky-100 hover:bg-sky-200 text-sky-700 rounded-lg text-[11px] font-bold transition flex items-center gap-1">
+              <i class="fa-solid fa-copy"></i> Salin Template HTML
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500 leading-relaxed">
+            Template ini otomatis memuat <strong>Kode QR Gambar Asli</strong> (menggunakan parameter <code class="bg-white px-1 py-0.5 border rounded font-mono">{{qr_code_url}}</code>) sehingga peserta langsung melihat QR code di email mereka!
+          </p>
         </div>
 
         <div class="pt-2 flex items-center gap-2">

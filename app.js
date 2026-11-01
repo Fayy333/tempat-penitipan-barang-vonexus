@@ -326,17 +326,17 @@ function handleCheckInSubmit(event) {
   // Open Ticket / Receipt Modal Immediately
   openTicketModal(newRecord);
 
-  // If Auto Send PDF is checked
+  // AUTOMATIC ZERO-CLICK PDF & EMAIL DELIVERY
   if (autoSendPdf) {
+    // 1. Automatically generate & download PDF
     setTimeout(() => {
-      // Auto download PDF receipt
       generateTicketPDF(newRecord, true);
+    }, 400);
 
-      // If email provided, send email
-      if (email && email !== '-') {
-        sendTicketToEmail(newRecord, false);
-      }
-    }, 600);
+    // 2. Automatically dispatch email in background (no buttons required!)
+    if (email && email !== '-') {
+      dispatchAutomaticEmail(newRecord);
+    }
   }
 }
 
@@ -573,6 +573,18 @@ function openTicketModal(record) {
   document.getElementById('modalTicketItems').textContent = record.items;
   document.getElementById('modalTicketRack').textContent = record.rack || 'Umum';
   document.getElementById('modalTicketTime').textContent = record.checkInTime;
+
+  // Set Email Status Banner state
+  const config = getEmailJSConfig();
+  if (record.email && record.email !== '-') {
+    if (config && config.serviceId && config.templateId && config.publicKey) {
+      updateModalEmailBanner('sending', 'Mengirimkan Struk & Kode QR ke Email...', `Tujuan: ${record.email}`);
+    } else {
+      updateModalEmailBanner('ready', 'PDF Struk Resmi Otomatis Terunduh', `Email peserta: ${record.email} (Aktifkan EmailJS untuk kirim otomatis)`);
+    }
+  } else {
+    updateModalEmailBanner('none', 'Email Tidak Dicantumkan', 'Peserta dapat mengambil foto QR atau cetak tiket fisik.');
+  }
 
   const statusBadge = document.getElementById('modalTicketStatusBadge');
   if (record.status === 'ACTIVE') {
@@ -842,17 +854,11 @@ function sendTicketToEmail(record, showPromptIfNoConfig = true) {
   }
 
   const config = getEmailJSConfig();
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(target.id)}`;
 
   // If EmailJS is properly configured, send directly in the background
   if (config && config.serviceId && config.templateId && config.publicKey && typeof emailjs !== 'undefined') {
-    Swal.fire({
-      title: 'Mengirim Email...',
-      text: `Mengirimkan struk resmi ke ${target.email}`,
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
+    updateModalEmailBanner('sending', 'Mengirimkan Struk & Kode QR ke Email...', `Tujuan: ${target.email}`);
 
     const templateParams = {
       to_email: target.email,
@@ -863,29 +869,159 @@ function sendTicketToEmail(record, showPromptIfNoConfig = true) {
       items: target.items,
       rack: target.rack || 'Umum',
       check_in_time: target.checkInTime,
+      qr_code_url: qrCodeUrl,
       notes: target.notes || '-'
     };
 
     emailjs.send(config.serviceId, config.templateId, templateParams, config.publicKey)
       .then(() => {
-        Swal.fire({
+        updateModalEmailBanner('success', 'Struk & Kode QR Berhasil Terkirim ke Email!', `Terkirim otomatis ke: ${target.email}`);
+        
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3500,
+          timerProgressBar: true
+        });
+        Toast.fire({
           icon: 'success',
-          title: 'Email Berhasil Terkirim!',
-          html: `Struk bukti penitipan tiket <b>${target.id}</b> telah terkirim ke <b>${target.email}</b>. Berkas PDF juga otomatis diunduh.`,
-          confirmButtonColor: '#10b981',
-          timer: 3500
+          title: `Struk tiket ${target.id} & QR terkirim ke email!`
         });
       })
       .catch(err => {
         console.error('EmailJS Send Error:', err);
-        fallbackEmailClient(target);
+        updateModalEmailBanner('warning', 'Pengiriman Otomatis EmailJS Terkendala', 'Periksa Service / Template ID di menu Opsi.');
+        if (showPromptIfNoConfig) {
+          fallbackEmailClient(target);
+        }
       });
   } else {
-    // If EmailJS is not configured yet and prompt is enabled
+    // If EmailJS is not configured yet
+    updateModalEmailBanner('info', 'PDF Struk Resmi Otomatis Terunduh', `Email peserta: ${target.email} (Aktifkan EmailJS di menu Opsi untuk kirim otomatis)`);
     if (showPromptIfNoConfig) {
       fallbackEmailClient(target);
     }
   }
+}
+
+// Automatically Dispatch Email with Live QR Code in Background (Hands-free zero-click!)
+function dispatchAutomaticEmail(record) {
+  if (!record || !record.email || record.email === '-') return;
+
+  const config = getEmailJSConfig();
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(record.id)}`;
+
+  if (config && config.serviceId && config.templateId && config.publicKey && typeof emailjs !== 'undefined') {
+    updateModalEmailBanner('sending', 'Mengirimkan Struk & Kode QR ke Email...', `Tujuan: ${record.email}`);
+
+    const templateParams = {
+      to_email: record.email,
+      to_name: record.name,
+      ticket_code: record.id,
+      category: record.category,
+      phone: record.phone || '-',
+      items: record.items,
+      rack: record.rack || 'Umum',
+      check_in_time: record.checkInTime,
+      qr_code_url: qrCodeUrl,
+      notes: record.notes || '-'
+    };
+
+    emailjs.send(config.serviceId, config.templateId, templateParams, config.publicKey)
+      .then(() => {
+        updateModalEmailBanner('success', 'Struk & Kode QR Berhasil Terkirim ke Email!', `Terkirim otomatis ke: ${record.email}`);
+        
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3500,
+          timerProgressBar: true
+        });
+        Toast.fire({
+          icon: 'success',
+          title: `Struk tiket ${record.id} & QR otomatis terkirim ke email!`
+        });
+      })
+      .catch((err) => {
+        console.error('EmailJS Auto-Send Error:', err);
+        updateModalEmailBanner('warning', 'Pengiriman Otomatis Terkendala', 'Periksa Service/Template ID EmailJS di menu Opsi.');
+      });
+  } else {
+    updateModalEmailBanner('info', 'PDF Struk Resmi Telah Otomatis Terunduh', `Email peserta: ${record.email}. Aktifkan EmailJS di Opsi untuk pengiriman otomatis tanpa klik.`);
+  }
+}
+
+// Update Modal Email Banner State
+function updateModalEmailBanner(type, title, subtext) {
+  const banner = document.getElementById('modalEmailStatusBanner');
+  const icon = document.getElementById('modalEmailStatusIcon');
+  const text = document.getElementById('modalEmailStatusText');
+  const sub = document.getElementById('modalEmailStatusSubtext');
+  if (!banner || !icon || !text || !sub) return;
+
+  banner.classList.remove('hidden');
+
+  if (type === 'sending') {
+    banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-sky-50 border border-sky-200 text-sky-950 transition';
+    icon.className = 'fa-solid fa-spinner fa-spin text-sky-600 text-sm';
+  } else if (type === 'success') {
+    banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-emerald-50 border border-emerald-200 text-emerald-950 transition';
+    icon.className = 'fa-solid fa-circle-check text-emerald-600 text-sm';
+  } else if (type === 'warning') {
+    banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-amber-50 border border-amber-200 text-amber-950 transition';
+    icon.className = 'fa-solid fa-triangle-exclamation text-amber-600 text-sm';
+  } else {
+    banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-slate-50 border border-slate-200 text-slate-700 transition';
+    icon.className = 'fa-solid fa-circle-info text-sky-600 text-sm';
+  }
+
+  text.textContent = title;
+  sub.textContent = subtext;
+}
+
+// Copy Ready-to-Use EmailJS HTML Template (with QR Image variable)
+function copyEmailTemplateHTML() {
+  const template = `<div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 2px solid #0284c7; border-radius: 12px; background: #ffffff;">
+  <div style="text-align: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px;">
+    <h2 style="color: #0284c7; margin: 0; font-size: 20px;">PCC EVENT CLOAKROOM</h2>
+    <p style="color: #64748b; font-size: 11px; margin: 4px 0 0 0;">Bukti Resmi Penitipan Barang & Registrasi</p>
+  </div>
+  <div style="text-align: center; background: #f0f9ff; padding: 12px; margin: 15px 0; border-radius: 8px;">
+    <div style="font-size: 11px; color: #0369a1; font-weight: bold;">NOMOR TIKET</div>
+    <div style="font-size: 28px; font-weight: bold; color: #0284c7; letter-spacing: 2px; font-family: monospace;">{{ticket_code}}</div>
+  </div>
+  <div style="text-align: center; margin: 15px 0;">
+    <img src="{{qr_code_url}}" alt="QR Code Tiket" width="160" height="160" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 5px; background: #fff;" />
+    <p style="font-size: 11px; color: #64748b; margin-top: 6px;">Tunjukkan Kode QR ini kepada Panitia saat pengambilan barang</p>
+  </div>
+  <table style="width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 12px;">
+    <tr><td style="padding: 6px 0; color: #64748b; width: 35%;">Nama Peserta</td><td style="padding: 6px 0; font-weight: bold; text-align: right;">{{to_name}}</td></tr>
+    <tr><td style="padding: 6px 0; color: #64748b;">Kategori Lomba</td><td style="padding: 6px 0; font-weight: bold; color: #0284c7; text-align: right;">{{category}}</td></tr>
+    <tr><td style="padding: 6px 0; color: #64748b;">Rincian Barang</td><td style="padding: 6px 0; font-weight: bold; text-align: right;">{{items}}</td></tr>
+    <tr><td style="padding: 6px 0; color: #64748b;">Lokasi Rak/Loker</td><td style="padding: 6px 0; font-weight: bold; color: #4338ca; text-align: right;">{{rack}}</td></tr>
+    <tr><td style="padding: 6px 0; color: #64748b;">Waktu Check-In</td><td style="padding: 6px 0; font-family: monospace; text-align: right;">{{check_in_time}}</td></tr>
+  </table>
+  <div style="border-top: 1px dashed #cbd5e1; margin-top: 15px; padding-top: 10px; font-size: 11px; color: #94a3b8; text-align: center;">
+    Harap simpan email ini sebagai bukti verifikasi yang sah. Terima kasih atas partisipasi Anda!
+  </div>
+</div>`;
+
+  navigator.clipboard.writeText(template).then(() => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Template Berhasil Disalin!',
+      text: 'Buka EmailJS ➔ Email Templates ➔ Tempel (paste) kode HTML ini pada Content template Anda.',
+      confirmButtonColor: '#0284c7'
+    });
+  }).catch(() => {
+    Swal.fire({
+      icon: 'info',
+      title: 'Salin Template',
+      text: 'Gunakan tombol Salin Template dari menu Opsi ➔ Pengaturan Email.'
+    });
+  });
 }
 
 // Fallback to default email client (mailto) & explain PDF
@@ -917,7 +1053,7 @@ function fallbackEmailClient(target) {
         <p>Struk PDF <b>Struk_Penitipan_${target.id}.pdf</b> telah otomatis terunduh di perangkat Anda.</p>
         <p>Untuk mengirimkan langsung ke <b>${target.email}</b>:</p>
         <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-          <p class="font-bold text-slate-700">Pilihan 1: Buka Aplikasi Email</p>
+          <p class="font-bold text-slate-700">Pilihan: Buka Aplikasi Email</p>
           <p class="text-[11px] text-slate-500">Klik tombol di bawah untuk membuka aplikasi email (Gmail / Outlook) dengan draf pesan otomatis.</p>
         </div>
       </div>

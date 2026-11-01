@@ -36,13 +36,16 @@ Jika Anda mengalami kendala saat memindai QR Code, perhatikan 3 hal berikut:
 - **Pilihan Cepat Jenis Barang (*Quick Pills*)**: Klik satu tombol untuk menambahkan tas ransel, laptop, tumbler, payung, jaket, helm, dll.
 - **Generator Nomor Tiket Otomatis**: Menghasilkan nomor berurutan dengan format profesional (`TIK-001`, `TIK-002`, dst.).
 
-### 2. 🖨️ Struk Digital, Kode QR & Pengiriman PDF ke Email
+### 2. 🖨️ Struk Digital, Kode QR & Pengiriman Otomatis ke Email
 - **Modal Tiket Digital Pop-up**: Langsung muncul otomatis setelah data disimpan.
-- **QR Code Generator Beresolusi Tinggi**: Memuat kode tiket dan verifikasi data peserta.
-- **📄 Otomatis Buat & Unduh Struk PDF**: Menggunakan library **html2pdf.js** untuk menghasilkan berkas PDF beresolusi tinggi (*A5 format*) dengan tata letak struk resmi, rincian barang, lokasi rak, dan kode QR yang tajam.
-- **📧 Pengiriman Struk ke Email Peserta**:
-  * **Integrasi EmailJS**: Kirim struk resmi otomatis langsung dari browser tanpa perlu server backend khusus (gratis 200 email/bulan dari EmailJS).
-  * **Fallback Email Client (`mailto`)**: Jika EmailJS belum diisi, sistem otomatis mengunduh berkas PDF dan membuka aplikasi email dengan draf struk yang sudah terisi otomatis.
+- **⚡ Pengiriman Email 100% Otomatis (Zero-Click)**:
+  * Begitu tombol *"Simpan & Buat Tiket"* diklik, sistem **secara otomatis di latar belakang langsung mengirimkan struk ke alamat email peserta tanpa perlu menekan tombol kirim lagi**.
+  * Email yang diterima peserta memuat **Gambar Kode QR Utuh**, Nomor Tiket, Identitas, Rincian Barang, dan Lokasi Rak.
+  * Berkas **PDF Struk Resmi** (`.pdf`) juga secara otomatis terunduh ke perangkat.
+  * Banner status live di struk menampilkan konfirmasi pengiriman secara *real-time*.
+- **Konfigurasi EmailJS Cepat**:
+  * Panitia cukup menyalin 3 kunci di menu **Opsi ➔ Pengaturan Email (EmailJS)** sekali saja.
+  * Tersedia tombol *"Salin Template HTML"* untuk kemudahan pengaturan tampilan email dengan gambar QR dinamis.
 - **💬 Kirim Bukti via WhatsApp**: Tombol satu-klik untuk mengirimkan struk konfirmasi langsung ke nomor WhatsApp peserta.
 - **Cetak Struk Khusus (*Thermal Receipt & Kertas*)**: Dilengkapi CSS `@media print` terformat rapi untuk printer thermal ukuran 58mm/80mm maupun kertas standar.
 
