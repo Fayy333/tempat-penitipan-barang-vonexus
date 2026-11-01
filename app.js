@@ -22,6 +22,7 @@ let currentFilterStatus = 'all';
 let html5QrScanner = null;
 let currentActiveTicketForReceipt = null;
 let currentTicketForCheckout = null;
+let scannerRearRetryPending = true;
 
 // Audio Context for Scanner Beep (synthetic sound, no external mp3 required)
 let audioCtx = null;
@@ -1233,6 +1234,11 @@ function initCameraList() {
         /back|rear|belakang|environment/i.test(device.label || '')
       );
       if (rearCamera) select.value = rearCamera.deviceId;
+      select.onchange = () => {
+        select.dataset.manualSelection = 'true';
+        stopScanner();
+        setTimeout(startScanner, 150);
+      };
     } else {
       const option = document.createElement('option');
       option.value = '';
@@ -1261,6 +1267,7 @@ function toggleScannerFullscreen() {
 }
 
 function startScanner() {
+  scannerRearRetryPending = true;
   const laser = document.getElementById('scannerLaser');
   const placeholder = document.getElementById('scannerPlaceholder');
   const btnStart = document.getElementById('btnStartScan');
@@ -1275,7 +1282,10 @@ function startScanner() {
     html5QrScanner = new Html5Qrcode("qr-reader");
   }
 
-  const cameraId = (cameraSelect && cameraSelect.value) ? cameraSelect.value : { facingMode: "environment" };
+  const manuallySelectedCamera = cameraSelect && cameraSelect.dataset.manualSelection === 'true';
+  const cameraId = manuallySelectedCamera && cameraSelect.value
+    ? cameraSelect.value
+    : { facingMode: { exact: "environment" } };
 
   const config = {
     fps: 15,
@@ -1308,6 +1318,33 @@ function startScanner() {
     initCameraList();
   }).catch(err => {
     console.error('Error starting html5QrScanner', err);
+    if (scannerRearRetryPending) {
+      scannerRearRetryPending = false;
+      const fallbackConfig = { ...config };
+      if (fallbackConfig.videoConstraints) {
+        fallbackConfig.videoConstraints.facingMode = { ideal: 'environment' };
+      }
+      html5QrScanner.start(
+        { facingMode: { ideal: 'environment' } },
+        fallbackConfig,
+        onQrScanSuccess,
+        () => {}
+      ).then(() => {
+        laser.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        btnStart.classList.add('hidden');
+        btnStop.classList.remove('hidden');
+        initCameraList();
+      }).catch(() => {
+        showScannerError();
+      });
+      return;
+    }
+    showScannerError();
+  });
+}
+
+function showScannerError() {
     const secureContext = window.isSecureContext;
     Swal.fire({
       icon: 'warning',
@@ -1325,7 +1362,6 @@ function startScanner() {
       `,
       confirmButtonColor: '#0284c7'
     });
-  });
 }
 
 function stopScanner() {

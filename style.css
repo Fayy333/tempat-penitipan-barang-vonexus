@@ -48,6 +48,26 @@ body {
 
 .scanner-frame video {
   object-fit: cover;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.scanner-frame #qr-reader {
+  position: absolute;
+  inset: 0;
+  height: 100% !important;
+}
+
+.scanner-frame #qr-reader__scan_region {
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+.scanner-frame #qr-reader__dashboard,
+.scanner-frame #qr-reader__dashboard_section,
+.scanner-frame #qr-reader__header_message {
+  position: absolute !important;
+  z-index: 15;
 }
 
 .scanner-frame.fullscreen-scanner {
