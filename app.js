@@ -1223,9 +1223,16 @@ function initCameraList() {
       devices.forEach((device, index) => {
         const option = document.createElement('option');
         option.value = device.id;
-        option.text = device.label || `Kamera ${index + 1}`;
+        const label = device.label || `Kamera ${index + 1}`;
+        option.text = /back|rear|belakang|environment/i.test(label)
+          ? `${label} - Kamera Belakang`
+          : label;
         select.appendChild(option);
       });
+      const rearCamera = devices.find(device =>
+        /back|rear|belakang|environment/i.test(device.label || '')
+      );
+      if (rearCamera) select.value = rearCamera.deviceId;
     } else {
       const option = document.createElement('option');
       option.value = '';
@@ -1235,6 +1242,22 @@ function initCameraList() {
   }).catch(err => {
     console.warn('Unable to get cameras', err);
   });
+}
+
+function toggleScannerFullscreen() {
+  const frame = document.querySelector('.scanner-frame');
+  if (!frame) return;
+
+  const isFullscreen = frame.classList.toggle('fullscreen-scanner');
+  document.body.style.overflow = isFullscreen ? 'hidden' : '';
+
+  if (html5QrScanner && html5QrScanner.isScanning) {
+    setTimeout(() => {
+      if (html5QrScanner.stop) {
+        html5QrScanner.stop().then(() => startScanner()).catch(() => {});
+      }
+    }, 120);
+  }
 }
 
 function startScanner() {
@@ -1258,10 +1281,15 @@ function startScanner() {
     fps: 15,
     qrbox: function(viewfinderWidth, viewfinderHeight) {
       const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-      const edge = Math.floor(minEdge * 0.75);
+      const edge = Math.floor(minEdge * (window.innerWidth < 640 ? 0.82 : 0.75));
       return { width: edge, height: edge };
     },
-    aspectRatio: 1.0,
+    aspectRatio: 0,
+    videoConstraints: {
+      facingMode: { ideal: 'environment' },
+      width: { ideal: 1920 },
+      height: { ideal: 1080 }
+    },
     showTorchButtonIfSupported: true
   };
 
@@ -1277,14 +1305,16 @@ function startScanner() {
     placeholder.classList.add('hidden');
     btnStart.classList.add('hidden');
     btnStop.classList.remove('hidden');
+    initCameraList();
   }).catch(err => {
     console.error('Error starting html5QrScanner', err);
+    const secureContext = window.isSecureContext;
     Swal.fire({
       icon: 'warning',
       title: 'Akses Kamera Terkendala',
       html: `
         <div class="text-left text-xs space-y-2">
-          <p>Jika Anda membuka file ini langsung (<code>file://</code>), browser membatasi izin kamera.</p>
+          <p>${secureContext ? 'Izinkan akses kamera pada ikon gembok/kamera di bilah alamat browser.' : 'Kamera hanya aktif pada <code>https://</code> atau <code>localhost</code>, bukan <code>file://</code>.'}</p>
           <p><b>Solusi Mudah:</b></p>
           <ul class="list-disc pl-4 space-y-1">
             <li>Gunakan tombol <b>"Scan Foto QR"</b> untuk memilih gambar QR dari laptop/HP Anda.</li>

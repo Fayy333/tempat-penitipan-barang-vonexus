@@ -516,6 +516,10 @@
 
         <!-- Scanner Viewport Frame -->
         <div class="scanner-frame bg-slate-950 rounded-2xl relative shadow-inner overflow-hidden min-h-[300px] flex items-center justify-center">
+
+          <button type="button" onclick="toggleScannerFullscreen()" class="scanner-fullscreen-controls w-10 h-10 rounded-full bg-slate-950/70 text-white hover:bg-slate-900 flex items-center justify-center" title="Mode layar penuh">
+            <i class="fa-solid fa-expand"></i>
+          </button>
           
           <!-- Animated Laser -->
           <div id="scannerLaser" class="scanner-laser hidden"></div>

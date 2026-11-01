@@ -40,6 +40,50 @@ body {
   border-radius: 1rem;
 }
 
+.scanner-frame #qr-reader,
+.scanner-frame #qr-reader__scan_region,
+.scanner-frame video {
+  width: 100% !important;
+}
+
+.scanner-frame video {
+  object-fit: cover;
+}
+
+.scanner-frame.fullscreen-scanner {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  border-radius: 0;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100dvh !important;
+  background: #020617;
+}
+
+.scanner-fullscreen-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+}
+
+@media (max-width: 640px) {
+  #tab-scanner .scanner-frame {
+    min-height: calc(100dvh - 240px) !important;
+    height: calc(100dvh - 240px);
+  }
+
+  #tab-scanner #qr-reader {
+    height: 100%;
+  }
+
+  #tab-scanner #qr-reader video {
+    height: 100% !important;
+    object-fit: cover;
+  }
+}
+
 .scanner-laser {
   position: absolute;
   top: 0;
