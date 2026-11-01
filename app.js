@@ -6,6 +6,11 @@
 // Storage Keys
 const STORAGE_KEY = 'PCC_CLOAKROOM_DATA_V1';
 const EMAILJS_CONFIG_KEY = 'PCC_EMAILJS_CONFIG_V1';
+const DEFAULT_EMAILJS_CONFIG = {
+  serviceId: 'service_pcc2026',
+  templateId: 'template_y1wx48y',
+  publicKey: '_q25jujQorzTJDOTU'
+};
 
 // Global State
 let cloakroomData = [];
@@ -104,6 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.location.protocol === 'file:') {
     const notice = document.getElementById('fileProtocolNotice');
     if (notice) notice.classList.remove('hidden');
+  }
+
+  if (!localStorage.getItem(EMAILJS_CONFIG_KEY)) {
+    localStorage.setItem(EMAILJS_CONFIG_KEY, JSON.stringify(DEFAULT_EMAILJS_CONFIG));
   }
 
   loadData();
@@ -668,19 +677,17 @@ function printCurrentTicket() {
 function getEmailJSConfig() {
   try {
     const raw = localStorage.getItem(EMAILJS_CONFIG_KEY);
-    return raw ? JSON.parse(raw) : null;
+    return raw ? { ...DEFAULT_EMAILJS_CONFIG, ...JSON.parse(raw) } : DEFAULT_EMAILJS_CONFIG;
   } catch (e) {
-    return null;
+    return DEFAULT_EMAILJS_CONFIG;
   }
 }
 
 function openEmailConfigModal() {
   const config = getEmailJSConfig();
-  if (config) {
-    document.getElementById('emailjsServiceId').value = config.serviceId || '';
-    document.getElementById('emailjsTemplateId').value = config.templateId || '';
-    document.getElementById('emailjsPublicKey').value = config.publicKey || '';
-  }
+  document.getElementById('emailjsServiceId').value = config.serviceId || DEFAULT_EMAILJS_CONFIG.serviceId;
+  document.getElementById('emailjsTemplateId').value = config.templateId || DEFAULT_EMAILJS_CONFIG.templateId;
+  document.getElementById('emailjsPublicKey').value = config.publicKey || DEFAULT_EMAILJS_CONFIG.publicKey;
   document.getElementById('emailConfigModal').classList.remove('hidden');
 }
 
