@@ -24,6 +24,7 @@ let currentFilterStatus = 'all';
 let html5QrScanner = null;
 let currentActiveTicketForReceipt = null;
 let currentTicketForCheckout = null;
+let isClearingData = false;
 let scannerRearRetryPending = true;
 
 // Audio Context for Scanner Beep (synthetic sound, no external mp3 required)
@@ -49,54 +50,6 @@ function playBeep(freq = 880, duration = 0.15) {
   }
 }
 
-// Sample Initial Demo Data
-const SAMPLE_DATA = [
-  {
-    id: "TIK-001",
-    name: "Ahmad Farhan",
-    category: "LPIKM",
-    phone: "081234567891",
-    email: "farhan.dev@gmail.com",
-    items: "Tas Ransel Eiger Hitam + Tumbler Biru",
-    rack: "Rak A-01",
-    notes: "Ada laptop di dalam ransel",
-    status: "ACTIVE",
-    checkInTime: "01 Nov 2026, 08:15 WIB",
-    checkInTimestamp: Date.now() - 3600000 * 3,
-    checkOutTime: null,
-    checkOutTimestamp: null
-  },
-  {
-    id: "TIK-002",
-    name: "Siti Rahmawati",
-    category: "BMC",
-    phone: "085712345678",
-    email: "rahma.siti@gmail.com",
-    items: "Tote Bag Putih Kanvas + Payung Lipat",
-    rack: "Rak A-02",
-    notes: "Barang pakaian dan dokumen",
-    status: "ACTIVE",
-    checkInTime: "01 Nov 2026, 08:30 WIB",
-    checkInTimestamp: Date.now() - 3600000 * 2.5,
-    checkOutTime: null,
-    checkOutTimestamp: null
-  },
-  {
-    id: "TIK-003",
-    name: "Dwi Prasetyo",
-    category: "Cerdas Cermat",
-    phone: "089698765432",
-    email: "dwiprasetyo@yahoo.com",
-    items: "Tas Selempang Abu-abu",
-    rack: "Loker B-05",
-    notes: "Charger & Jaket Hoodie",
-    status: "COMPLETED",
-    checkInTime: "01 Nov 2026, 07:45 WIB",
-    checkInTimestamp: Date.now() - 3600000 * 4,
-    checkOutTime: "01 Nov 2026, 11:20 WIB",
-    checkOutTimestamp: Date.now() - 3600000 * 1
-  }
-];
 
 // Helper: Format DateTime to Indonesian Locale
 function formatDateTime(date = new Date()) {
@@ -176,12 +129,11 @@ function loadData() {
       cloakroomData = JSON.parse(raw);
     } catch (e) {
       console.error('Failed to parse localStorage data', e);
-      cloakroomData = [...SAMPLE_DATA];
+      cloakroomData = [];
       saveData();
     }
   } else {
-    // If first time visit, populate with sample data
-    cloakroomData = [...SAMPLE_DATA];
+    cloakroomData = [];
     saveData();
   }
   renderDashboardStats();
@@ -214,6 +166,7 @@ async function supabaseRequest(path, options = {}) {
 }
 
 async function syncWithSupabase() {
+  if (isClearingData) return;
   try {
     const rows = await supabaseRequest('cloakroom_records?select=id,data&order=updated_at.asc');
     if (Array.isArray(rows)) {
@@ -2289,36 +2242,6 @@ function exportDataCSV() {
   document.body.removeChild(link);
 }
 
-// Load Demo Sample Data
-function loadSampleData() {
-  Swal.fire({
-    title: 'Muat Data Contoh?',
-    text: 'Data contoh akan ditambahkan ke dalam daftar penitipan.',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#297810',
-    cancelButtonColor: '#64748b',
-    confirmButtonText: 'Muat Contoh',
-    cancelButtonText: 'Batal'
-  }).then(result => {
-    if (result.isConfirmed) {
-      cloakroomData = [...SAMPLE_DATA];
-      saveData();
-      renderDashboardStats();
-      renderTable();
-      updateNextTicketBadge();
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Berhasil',
-        text: 'Data contoh berhasil dimuat.',
-        timer: 1800,
-        showConfirmButton: false
-      });
-    }
-  });
-}
-
 // Clear All Data
 function clearAllData() {
   Swal.fire({
@@ -2332,9 +2255,13 @@ function clearAllData() {
     cancelButtonText: 'Batal'
   }).then(result => {
     if (result.isConfirmed) {
+      isClearingData = true;
       cloakroomData = [];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cloakroomData));
       supabaseRequest('cloakroom_records?id=not.is.null', { method: 'DELETE' }).catch(error => {
         console.error('Supabase clear failed:', error);
+      }).finally(() => {
+        isClearingData = false;
       });
       saveData();
       renderDashboardStats();
