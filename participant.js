@@ -16,15 +16,26 @@ function getParticipantEmailConfig() {
     const stored = localStorage.getItem(PARTICIPANT_EMAIL_CONFIG_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      return {
-        provider: parsed.provider || 'gas',
-        gasUrl: parsed.gasUrl || '',
+      const provider = parsed.provider || 'emailjs';
+      const candidate = {
+        provider,
+        gasUrl: parsed.gasUrl?.trim() || '',
         emailjs: {
           serviceId: parsed.emailjs?.serviceId || '',
           templateId: parsed.emailjs?.templateId || '',
           publicKey: parsed.emailjs?.publicKey || ''
         }
       };
+
+      if (provider === 'emailjs' &&
+        candidate.emailjs.serviceId &&
+        candidate.emailjs.templateId &&
+        candidate.emailjs.publicKey) {
+        return candidate;
+      }
+      if (provider === 'gas' && candidate.gasUrl) {
+        return candidate;
+      }
     }
 
     const legacy = localStorage.getItem(PARTICIPANT_LEGACY_EMAIL_CONFIG_KEY);
@@ -261,7 +272,8 @@ document.getElementById('participantForm').addEventListener('submit', async func
         }
         if (emailStatus) {
           emailStatus.className = 'mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700';
-          emailStatus.textContent = `Data tersimpan, tetapi email gagal dikirim: ${emailError.message}`;
+          const emailErrorDetail = emailError?.text || emailError?.message || 'Pengiriman EmailJS ditolak atau koneksi tidak tersedia.';
+          emailStatus.textContent = `Data tersimpan, tetapi email gagal dikirim: ${emailErrorDetail}`;
           emailStatus.classList.remove('hidden');
         }
       }
