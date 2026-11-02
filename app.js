@@ -18,6 +18,11 @@ const SUPABASE_CONFIG = {
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYWZwY3Z1d2JvZHh1emVocG9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzI4NDEsImV4cCI6MjEwOTEwODg0MX0.4wdU2ADPc2Q1lceW913QClyM_WdSfhenoL465lmGMNY'
 };
 
+if (window.VONEXUS_SUPABASE_CONFIG) {
+  SUPABASE_CONFIG.url = window.VONEXUS_SUPABASE_CONFIG.url || SUPABASE_CONFIG.url;
+  SUPABASE_CONFIG.anonKey = window.VONEXUS_SUPABASE_CONFIG.anonKey || '';
+}
+
 // Global State
 let cloakroomData = [];
 let currentFilterStatus = 'all';
@@ -283,18 +288,23 @@ function switchTab(tabId) {
 function toggleQuickPill(itemName) {
   const inputEl = document.getElementById('inputBarang');
   let currentVal = inputEl.value.trim();
+  const button = Array.from(document.querySelectorAll('#quickPillsContainer .tag-pill'))
+    .find(element => element.getAttribute('onclick')?.includes(`'${itemName}'`));
   
   if (currentVal.length === 0) {
     inputEl.value = itemName;
+    button?.classList.add('bg-[#eaf7e8]', 'text-[#186301]', 'border-[#b8e2b3]');
   } else {
     // Check if already contains
     if (currentVal.toLowerCase().includes(itemName.toLowerCase())) {
       // Remove it
       const parts = currentVal.split(',').map(s => s.trim()).filter(s => s.toLowerCase() !== itemName.toLowerCase() && s.length > 0);
       inputEl.value = parts.join(', ');
+      button?.classList.remove('bg-[#eaf7e8]', 'text-[#186301]', 'border-[#b8e2b3]');
     } else {
       // Append it
       inputEl.value = `${currentVal}, ${itemName}`;
+      button?.classList.add('bg-[#eaf7e8]', 'text-[#186301]', 'border-[#b8e2b3]');
     }
   }
 }
@@ -302,6 +312,9 @@ function toggleQuickPill(itemName) {
 // Reset Check-in Form
 function resetCheckInForm() {
   document.getElementById('checkInForm').reset();
+  document.querySelectorAll('#quickPillsContainer .tag-pill').forEach(button => {
+    button.classList.remove('bg-[#eaf7e8]', 'text-[#186301]', 'border-[#b8e2b3]');
+  });
   updateNextTicketBadge();
 }
 
@@ -313,7 +326,14 @@ function handleCheckInSubmit(event) {
   const kategori = document.getElementById('inputKategori').value;
   const kontak = document.getElementById('inputKontak').value.trim() || '-';
   const email = normalizeParticipantEmail(document.getElementById('inputEmail').value);
-  const barang = document.getElementById('inputBarang').value.trim();
+  const barangDetails = document.getElementById('inputBarang').value.trim();
+  const merkBarang = document.getElementById('inputMerkBarang')?.value.trim() || '';
+  const warnaBarang = document.getElementById('inputWarnaBarang')?.value.trim() || '';
+  const barang = [
+    barangDetails,
+    merkBarang ? `Merk: ${merkBarang}` : '',
+    warnaBarang ? `Warna: ${warnaBarang}` : ''
+  ].filter(Boolean).join(' | ');
   const rak = document.getElementById('inputLokasiRak').value.trim() || 'Umum';
   const catatan = document.getElementById('inputCatatan').value.trim() || '-';
   const autoSendPdf = document.getElementById('autoSendPdfCheckbox') ? document.getElementById('autoSendPdfCheckbox').checked : true;
