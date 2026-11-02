@@ -821,6 +821,13 @@ function normalizeParticipantEmail(email) {
   return normalized;
 }
 
+function formatShortTicketNumber(ticketCode) {
+  if (typeof ticketCode !== 'string') return '';
+  const match = ticketCode.match(/TIK-(\d+)/i);
+  if (!match) return ticketCode;
+  return String(parseInt(match[1], 10)).padStart(2, '0');
+}
+
 function buildEmailTemplateParams(record, targetEmail, qrCodeUrl) {
   const email = normalizeParticipantEmail(targetEmail);
   return {
@@ -833,6 +840,7 @@ function buildEmailTemplateParams(record, targetEmail, qrCodeUrl) {
     name: record.name,
     title: `Struk Penitipan #${record.id}`,
     ticket_code: record.id,
+    ticket_number: formatShortTicketNumber(record.id),
     category: record.category,
     phone: record.phone || '-',
     items: record.items,
@@ -1192,6 +1200,7 @@ function testSendEmailJS() {
         name: "Peserta Uji Coba",
         title: "Uji Coba Pengiriman Email",
         ticket_code: "TIK-TEST",
+        ticket_number: "TEST",
         category: "Uji Coba Sistem",
         phone: "08123456789",
         items: "Barang Pengujian",
@@ -1557,7 +1566,7 @@ function copyEmailTemplateHTML() {
   </div>
   <div style="text-align: center; background: #f3fbf2; border: 1.5px dashed #77d26f; padding: 12px; margin: 15px 0; border-radius: 10px;">
     <div style="font-size: 11px; color: #186301; font-weight: bold; letter-spacing: 1px;">NOMOR TIKET</div>
-    <div class="pcc-ticket-code" style="font-size: 28px; font-weight: bold; color: #186301; letter-spacing: 2px; font-family: monospace; word-break: break-word;">{{ticket_code}}</div>
+    <div class="pcc-ticket-code" style="font-size: 28px; font-weight: bold; color: #186301; letter-spacing: 2px; font-family: monospace; word-break: break-word;">{{ticket_number}}</div>
   </div>
   <div style="text-align: center; margin: 15px 0;">
     <img class="pcc-qr" src="{{qr_code_url}}" alt="QR Code Tiket" width="180" height="180" style="max-width: 100%; height: auto; border: 1.5px solid #b2dfab; border-radius: 10px; padding: 6px; background: #fff;" />
