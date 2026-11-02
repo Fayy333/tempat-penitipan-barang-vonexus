@@ -106,6 +106,15 @@
           </div>
         </div>
 
+        <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-[#b8e2b3] bg-[#f4faf3] p-3 text-xs text-slate-700">
+          <input id="participantAutoSendEmail" type="checkbox" checked class="mt-0.5 h-4 w-4 rounded border-[#b8e2b3] accent-[#186301]">
+          <span>
+            <strong class="block text-slate-800">Kirim struk dan QR otomatis melalui email</strong>
+            <span class="mt-0.5 block text-slate-500">Menggunakan pengaturan EmailJS atau Google Apps Script dari dashboard panitia.</span>
+          </span>
+        </label>
+        <p id="participantEmailStatus" class="hidden"></p>
+
         <button id="participantSubmit" type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#186301] px-4 py-3 text-sm font-bold text-white hover:bg-[#134e01]">
           <i class="fa-solid fa-paper-plane"></i>
           Simpan &amp; Buat Tiket

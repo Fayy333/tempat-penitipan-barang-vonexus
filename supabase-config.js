@@ -1,4 +1,4 @@
 window.VONEXUS_SUPABASE_CONFIG = {
   url: 'https://iaafpcvuwbodxuzehpof.supabase.co',
-  anonKey: ''
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYWZwY3Z1d2JvZHh1emVocG9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzI4NDEsImV4cCI6MjEwOTEwODg0MX0.4wdU2ADPc2Q1lceW913QClyM_WdSfhenoL465lmGMNY'
 };

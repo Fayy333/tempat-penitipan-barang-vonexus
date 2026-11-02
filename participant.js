@@ -1,4 +1,119 @@
 const PARTICIPANT_CONFIG = window.VONEXUS_SUPABASE_CONFIG || {};
+const PARTICIPANT_EMAIL_CONFIG_KEY = 'PCC_EMAIL_CONFIG_V2';
+const PARTICIPANT_LEGACY_EMAIL_CONFIG_KEY = 'PCC_EMAILJS_CONFIG_V1';
+const PARTICIPANT_DEFAULT_EMAIL_CONFIG = {
+  provider: 'emailjs',
+  gasUrl: '',
+  emailjs: {
+    serviceId: 'service_koorlap',
+    templateId: 'template_vonexus',
+    publicKey: 'vyV-uoZw2LAOOKupU'
+  }
+};
+
+function getParticipantEmailConfig() {
+  try {
+    const stored = localStorage.getItem(PARTICIPANT_EMAIL_CONFIG_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return {
+        provider: parsed.provider || 'gas',
+        gasUrl: parsed.gasUrl || '',
+        emailjs: {
+          serviceId: parsed.emailjs?.serviceId || '',
+          templateId: parsed.emailjs?.templateId || '',
+          publicKey: parsed.emailjs?.publicKey || ''
+        }
+      };
+    }
+
+    const legacy = localStorage.getItem(PARTICIPANT_LEGACY_EMAIL_CONFIG_KEY);
+    if (legacy) {
+      const parsed = JSON.parse(legacy);
+      if (parsed.serviceId && parsed.templateId && parsed.publicKey) {
+        return {
+          provider: 'emailjs',
+          gasUrl: '',
+          emailjs: parsed
+        };
+      }
+    }
+  } catch (error) {
+    console.warn('Gagal membaca konfigurasi email:', error);
+  }
+  return PARTICIPANT_DEFAULT_EMAIL_CONFIG;
+}
+
+function formatParticipantTicketNumber(ticketCode) {
+  const match = String(ticketCode).match(/^(?:TIK-)?(\d+)$/i);
+  return match ? String(parseInt(match[1], 10)).padStart(2, '0') : String(ticketCode);
+}
+
+function buildParticipantEmailParams(record, qrCodeUrl) {
+  const email = record.email.trim().toLowerCase();
+  return {
+    to_email: email,
+    email,
+    participant_email: email,
+    recipient_email: email,
+    user_email: email,
+    to_name: record.name,
+    name: record.name,
+    title: `Struk Penitipan #${record.id}`,
+    ticket_code: record.id,
+    ticket_number: formatParticipantTicketNumber(record.id),
+    category: record.category,
+    phone: record.phone || '-',
+    items: record.items,
+    rack: record.rack || 'Umum',
+    check_in_time: record.checkInTime,
+    qr_code_url: qrCodeUrl,
+    notes: record.notes || '-'
+  };
+}
+
+async function sendParticipantTicketEmail(record) {
+  const config = getParticipantEmailConfig();
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&qzone=4&ecc=M&data=${encodeURIComponent(record.id)}`;
+  const emailStatus = document.getElementById('participantEmailStatus');
+
+  if (config.provider === 'emailjs') {
+    const emailjsConfig = config.emailjs;
+    if (!emailjsConfig.serviceId || !emailjsConfig.templateId || !emailjsConfig.publicKey) {
+      throw new Error('Pengaturan EmailJS belum lengkap di dashboard panitia.');
+    }
+    if (typeof emailjs === 'undefined') {
+      throw new Error('Library EmailJS belum siap.');
+    }
+    emailjs.init({ publicKey: emailjsConfig.publicKey });
+    await emailjs.send(
+      emailjsConfig.serviceId,
+      emailjsConfig.templateId,
+      buildParticipantEmailParams(record, qrCodeUrl),
+      { publicKey: emailjsConfig.publicKey }
+    );
+  } else {
+    if (!config.gasUrl) {
+      throw new Error('URL Google Apps Script belum diatur di dashboard panitia.');
+    }
+    await fetch(config.gasUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        ...buildParticipantEmailParams(record, qrCodeUrl),
+        to_name: record.name,
+        check_in_time: record.checkInTime
+      })
+    });
+  }
+
+  if (emailStatus) {
+    emailStatus.className = 'mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700';
+    emailStatus.textContent = `Struk dan kode QR berhasil dikirim ke ${record.email}.`;
+    emailStatus.classList.remove('hidden');
+  }
+}
 
 document.querySelectorAll('.quick-item').forEach(button => {
   button.addEventListener('click', function () {
@@ -49,7 +164,16 @@ async function participantSupabase(path, options = {}) {
   if (!response.ok) {
     throw new Error(await response.text());
   }
-  return response.status === 204 ? null : response.json();
+  if (response.status === 204) return null;
+
+  const responseText = await response.text();
+  if (!responseText.trim()) return null;
+
+  try {
+    return JSON.parse(responseText);
+  } catch (error) {
+    throw new Error('Respons Supabase tidak valid. Periksa aturan akses tabel cloakroom_records.');
+  }
 }
 
 async function getNextParticipantTicket() {
@@ -103,6 +227,45 @@ document.getElementById('participantForm').addEventListener('submit', async func
       headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
       body: JSON.stringify([{ id: record.id, data: record, updated_at: now.toISOString() }])
     });
+
+    try {
+      if ('BroadcastChannel' in window) {
+        const participantChannel = new BroadcastChannel('vonexus-cloakroom');
+        participantChannel.postMessage({ type: 'record-added', ticketId: record.id });
+        participantChannel.close();
+      }
+      localStorage.setItem('PCC_CLOAKROOM_LAST_UPDATE_V1', String(now.getTime()));
+    } catch (signalError) {
+      console.warn('Gagal mengirim sinyal pembaruan dashboard:', signalError);
+    }
+
+    if (document.getElementById('participantAutoSendEmail').checked) {
+      const emailStatus = document.getElementById('participantEmailStatus');
+      if (emailStatus) {
+        emailStatus.className = 'mt-3 rounded-xl bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700';
+        emailStatus.textContent = 'Mengirim struk dan kode QR ke email...';
+        emailStatus.classList.remove('hidden');
+      }
+      try {
+        await sendParticipantTicketEmail(record);
+      } catch (emailError) {
+        try {
+          const pendingKey = 'PCC_PENDING_EMAILS_V1';
+          const pending = JSON.parse(localStorage.getItem(pendingKey) || '[]');
+          if (!pending.includes(record.id)) {
+            pending.push(record.id);
+            localStorage.setItem(pendingKey, JSON.stringify(pending));
+          }
+        } catch (queueError) {
+          console.warn('Gagal menyimpan antrean email:', queueError);
+        }
+        if (emailStatus) {
+          emailStatus.className = 'mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700';
+          emailStatus.textContent = `Data tersimpan, tetapi email gagal dikirim: ${emailError.message}`;
+          emailStatus.classList.remove('hidden');
+        }
+      }
+    }
 
     document.getElementById('participantTicketCode').textContent = ticketCode;
     document.getElementById('participantQr').innerHTML = '';

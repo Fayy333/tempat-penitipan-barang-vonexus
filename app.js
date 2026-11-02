@@ -1,4 +1,4 @@
-﻿/**
+/**
  * DIGITAL CLOAKROOM & REGISTRATION SYSTEM (Sistem Penitipan Barang Digital)
  * Vonexus 2026 - Digital Cloakroom
  */
@@ -98,6 +98,18 @@ document.addEventListener('DOMContentLoaded', () => {
   syncWithSupabase();
   processPendingAutomaticEmails();
   setInterval(syncWithSupabase, 5000);
+  if ('BroadcastChannel' in window) {
+    const dashboardChannel = new BroadcastChannel('vonexus-cloakroom');
+    dashboardChannel.addEventListener('message', event => {
+      if (event.data && event.data.type === 'record-added') {
+        syncWithSupabase();
+      }
+    });
+  }
+  window.addEventListener('focus', syncWithSupabase);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) syncWithSupabase();
+  });
   initLiveClock();
   updateNextTicketBadge();
   updateQuickTestDropdown();
@@ -167,7 +179,16 @@ async function supabaseRequest(path, options = {}) {
     const message = await response.text();
     throw new Error(message || `Supabase error: ${response.status}`);
   }
-  return response.status === 204 ? null : response.json();
+  if (response.status === 204) return null;
+
+  const responseText = await response.text();
+  if (!responseText.trim()) return null;
+
+  try {
+    return JSON.parse(responseText);
+  } catch (error) {
+    throw new Error('Respons Supabase tidak valid. Periksa aturan akses tabel cloakroom_records.');
+  }
 }
 
 async function syncWithSupabase() {
@@ -494,8 +515,8 @@ function renderTable() {
           <div class="font-bold text-slate-800">${item.name}</div>
           <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-1.5">
             <span class="text-[#297810] font-semibold">${item.category}</span>
-            ${item.phone && item.phone !== '-' ? `<span>• <i class="fa-brands fa-whatsapp text-emerald-600"></i> ${item.phone}</span>` : ''}
-            ${item.email && item.email !== '-' ? `<span>• <i class="fa-solid fa-envelope text-[#49a141]"></i> ${item.email}</span>` : ''}
+            ${item.phone && item.phone !== '-' ? `<span>� <i class="fa-brands fa-whatsapp text-emerald-600"></i> ${item.phone}</span>` : ''}
+            ${item.email && item.email !== '-' ? `<span>� <i class="fa-solid fa-envelope text-[#49a141]"></i> ${item.email}</span>` : ''}
           </div>
         </td>
         <td class="py-3 px-4 max-w-xs">
@@ -1045,7 +1066,7 @@ function copyGoogleScriptCode() {
     var checkInTime = data.check_in_time || "";
     var qrCodeUrl = data.qr_code_url || "";
 
-    var subject = "🎫 Tiket Penitipan Barang #" + ticketCode + " - " + participantName + " (Vonexus 2026)";
+    var subject = "?? Tiket Penitipan Barang #" + ticketCode + " - " + participantName + " (Vonexus 2026)";
 
     var htmlBody = "" +
       "<div style='font-family: Arial, sans-serif; max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;'>" +
@@ -1608,14 +1629,14 @@ function copyEmailTemplateHTML() {
     Swal.fire({
       icon: 'success',
       title: 'Template Berhasil Disalin!',
-      text: 'Buka EmailJS ➔ Email Templates ➔ Tempel (paste) kode HTML ini pada Content template Anda.',
+      text: 'Buka EmailJS ? Email Templates ? Tempel (paste) kode HTML ini pada Content template Anda.',
       confirmButtonColor: '#297810'
     });
   }).catch(() => {
     Swal.fire({
       icon: 'info',
       title: 'Salin Template',
-      text: 'Gunakan tombol Salin Template dari menu Opsi ➔ Pengaturan Email.'
+      text: 'Gunakan tombol Salin Template dari menu Opsi ? Pengaturan Email.'
     });
   });
 }
@@ -1679,11 +1700,11 @@ function shareTicketToWhatsApp(record) {
     `*BUKTI RESMI PENITIPAN BARANG DIGITAL - VONEXUS 2026*\n\n` +
     `Halo *${target.name}*,\n` +
     `Barang titipan Anda telah terdaftar di sistem dengan rincian:\n\n` +
-    `🔖 *Nomor Tiket :* ${target.id}\n` +
-    `🏆 *Kategori    :* ${target.category}\n` +
-    `🎒 *Barang      :* ${target.items}\n` +
-    `📦 *Lokasi Rak  :* ${target.rack || 'Umum'}\n` +
-    `⏰ *Waktu Titip :* ${target.checkInTime}\n\n` +
+    `?? *Nomor Tiket :* ${target.id}\n` +
+    `?? *Kategori    :* ${target.category}\n` +
+    `?? *Barang      :* ${target.items}\n` +
+    `?? *Lokasi Rak  :* ${target.rack || 'Umum'}\n` +
+    `? *Waktu Titip :* ${target.checkInTime}\n\n` +
     `Tunjukkan tiket ini kepada panitia saat mengambil barang. Terima kasih!`
   );
 
