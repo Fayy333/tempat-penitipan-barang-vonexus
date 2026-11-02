@@ -1,6 +1,6 @@
 ﻿/**
  * DIGITAL CLOAKROOM & REGISTRATION SYSTEM (Sistem Penitipan Barang Digital)
- * PCC Event - Organisasi & UKM
+ * Vonexus 2026 - Digital Cloakroom
  */
 
 // Storage Keys
@@ -9,9 +9,9 @@ const EMAIL_CONFIG_KEY = 'PCC_EMAIL_CONFIG_V2';
 const LEGACY_EMAILJS_CONFIG_KEY = 'PCC_EMAILJS_CONFIG_V1';
 const PENDING_EMAIL_KEY = 'PCC_PENDING_EMAILS_V1';
 const DEFAULT_EMAILJS_CONFIG = {
-  serviceId: 'service_pcc2026',
-  templateId: 'template_y1wx48y',
-  publicKey: '_q25jujQorzTJDOTU'
+  serviceId: 'service_koorlap',
+  templateId: 'template_vonexus',
+  publicKey: 'vyV-uoZw2LAOOKupU'
 };
 const SUPABASE_CONFIG = {
   url: 'https://iaafpcvuwbodxuzehpof.supabase.co',
@@ -1017,18 +1017,18 @@ function copyGoogleScriptCode() {
     var checkInTime = data.check_in_time || "";
     var qrCodeUrl = data.qr_code_url || "";
 
-    var subject = "🎫 Tiket Penitipan Barang #" + ticketCode + " - " + participantName + " (PCC Event)";
+    var subject = "🎫 Tiket Penitipan Barang #" + ticketCode + " - " + participantName + " (Vonexus 2026)";
 
     var htmlBody = "" +
       "<div style='font-family: Arial, sans-serif; max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;'>" +
         "<div style='background: #186301; padding: 24px; text-align: center; color: #ffffff;'>" +
           "<div style='font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #77d26f;'>STRUK RESMI DIGITAL</div>" +
-          "<h1 style='margin: 4px 0 0 0; font-size: 22px; font-weight: 800;'>PCC EVENT CLOAKROOM</h1>" +
+          "<h1 style='margin: 4px 0 0 0; font-size: 22px; font-weight: 800;'>VONEXUS 2026 CLOAKROOM</h1>" +
           "<p style='margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;'>Sistem Penitipan Barang & Registrasi Peserta</p>" +
         "</div>" +
         "<div style='padding: 24px;'>" +
           "<p style='margin-top: 0; font-size: 14px;'>Halo <b>" + participantName + "</b>,</p>" +
-          "<p style='font-size: 13px; color: #475569;'>Barang titipan Anda telah berhasil didaftarkan di sistem penitipan PCC Event.</p>" +
+          "<p style='font-size: 13px; color: #475569;'>Barang titipan Anda telah berhasil didaftarkan di sistem penitipan Vonexus 2026.</p>" +
           "<div style='background: #f4faf3; border: 2px dashed #b8e2b3; border-radius: 12px; padding: 16px; text-align: center; margin: 18px 0;'>" +
             "<div style='font-size: 11px; font-weight: bold; color: #64748b;'>NOMOR TIKET ANDA:</div>" +
             "<div style='font-size: 32px; font-weight: 900; color: #186301; font-family: monospace; margin: 4px 0;'>" + ticketCode + "</div>" +
@@ -1047,7 +1047,7 @@ function copyGoogleScriptCode() {
           "</table>" +
         "</div>" +
         "<div style='background: #f8fafc; padding: 14px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;'>" +
-          "Sistem Penitipan Barang Digital PCC Event &bull; Simpan email ini dengan baik" +
+          "Sistem Penitipan Barang Digital Vonexus 2026 &bull; Simpan email ini dengan baik" +
         "</div>" +
       "</div>";
 
@@ -1552,7 +1552,7 @@ function copyEmailTemplateHTML() {
 </style>
 <div class="pcc-email-card" style="font-family: Arial, sans-serif; width: 100%; max-width: 500px; box-sizing: border-box; margin: 0 auto; padding: 20px; border: 2px solid #297810; border-radius: 14px; background: #ffffff;">
   <div style="text-align: center; border-bottom: 2px dashed #b2dfab; padding-bottom: 12px;">
-    <h2 class="pcc-email-title" style="color: #186301; margin: 0; font-size: 20px; font-weight: bold;">PCC EVENT CLOAKROOM</h2>
+    <h2 class="pcc-email-title" style="color: #186301; margin: 0; font-size: 20px; font-weight: bold;">VONEXUS 2026 CLOAKROOM</h2>
     <p style="color: #49a141; font-size: 11px; margin: 4px 0 0 0; font-weight: 600;">Bukti Resmi Penitipan Barang & Registrasi</p>
   </div>
   <div style="text-align: center; background: #f3fbf2; border: 1.5px dashed #77d26f; padding: 12px; margin: 15px 0; border-radius: 10px;">
@@ -1593,10 +1593,10 @@ function copyEmailTemplateHTML() {
 
 // Fallback to default email client (mailto) & explain PDF
 function fallbackEmailClient(target) {
-  const subject = encodeURIComponent(`[PCC CLOAKROOM] Bukti Penitipan Barang - Tiket ${target.id} (${target.name})`);
+  const subject = encodeURIComponent(`[VONEXUS 2026 CLOAKROOM] Bukti Penitipan Barang - Tiket ${target.id} (${target.name})`);
   const body = encodeURIComponent(
     `Halo ${target.name},\n\n` +
-    `Terima kasih telah menitipkan barang Anda di PCC Cloakroom.\n` +
+    `Terima kasih telah menitipkan barang Anda di Vonexus 2026 Cloakroom.\n` +
     `Berikut adalah rincian data penitipan resmi Anda:\n\n` +
     `========================================\n` +
     `NOMOR TIKET  : ${target.id}\n` +
@@ -1609,7 +1609,7 @@ function fallbackEmailClient(target) {
     `Berkas PDF Struk Resmi Anda telah dibuat dan otomatis terunduh di perangkat.\n` +
     `Harap simpan email atau PDF ini untuk ditunjukkan kepada panitia saat pengambilan barang.\n\n` +
     `Salam hormat,\n` +
-    `Panitia PCC Event`
+    `Panitia Vonexus 2026`
   );
 
   Swal.fire({
@@ -1647,7 +1647,7 @@ function shareTicketToWhatsApp(record) {
   }
 
   const text = encodeURIComponent(
-    `*BUKTI RESMI PENITIPAN BARANG DIGITAL - PCC EVENT*\n\n` +
+    `*BUKTI RESMI PENITIPAN BARANG DIGITAL - VONEXUS 2026*\n\n` +
     `Halo *${target.name}*,\n` +
     `Barang titipan Anda telah terdaftar di sistem dengan rincian:\n\n` +
     `🔖 *Nomor Tiket :* ${target.id}\n` +
@@ -2236,7 +2236,6 @@ function exportDataCSV() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.setAttribute('href', url);
-  link.setAttribute('download', `Rekap_Penitipan_PCC_${new Date().toISOString().slice(0, 10)}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

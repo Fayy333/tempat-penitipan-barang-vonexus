@@ -1,5 +1,5 @@
 # 🎒 Sistem Penitipan Barang & Registrasi Digital (Digital Cloakroom System)
-> **PCC Event & Organisasi / Boothcamp**
+> **Vonexus 2026**
 
 Aplikasi web modern, responsif (*mobile-friendly*), dan intuitif untuk mengelola penitipan barang peserta lomba/acara secara digital menggunakan **Nomor Tiket Otomatis** dan **Pemindai Kode QR Kamera**.
 
@@ -299,4 +299,4 @@ Aplikasi menggunakan skema warna hijau alami modern berbasis palet 5-warna:
 - **`#2fff00` (Electric Neon Lime)**: Garis animasi laser pemindai kamera dan lampu indikator sistem aktif (*live pulse*).
 
 ---
-*Dibuat untuk Organisasi & UKM PCC - Digital Cloakroom System*
+*Dibuat untuk Vonexus 2026 - Digital Cloakroom System*
