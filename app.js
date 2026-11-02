@@ -5,7 +5,9 @@
 
 // Storage Keys
 const STORAGE_KEY = 'PCC_CLOAKROOM_DATA_V1';
-const EMAILJS_CONFIG_KEY = 'PCC_EMAILJS_CONFIG_V1';
+const EMAIL_CONFIG_KEY = 'PCC_EMAIL_CONFIG_V2';
+const LEGACY_EMAILJS_CONFIG_KEY = 'PCC_EMAILJS_CONFIG_V1';
+const PENDING_EMAIL_KEY = 'PCC_PENDING_EMAILS_V1';
 const DEFAULT_EMAILJS_CONFIG = {
   serviceId: 'service_pcc2026',
   templateId: 'template_y1wx48y',
@@ -116,12 +118,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (notice) notice.classList.remove('hidden');
   }
 
-  if (!localStorage.getItem(EMAILJS_CONFIG_KEY)) {
-    localStorage.setItem(EMAILJS_CONFIG_KEY, JSON.stringify(DEFAULT_EMAILJS_CONFIG));
-  }
+  try {
+    const leg = localStorage.getItem(LEGACY_EMAILJS_CONFIG_KEY);
+    if (leg) {
+      try {
+        const parsed = JSON.parse(leg);
+        if (parsed.serviceId || parsed.templateId || parsed.publicKey) {
+          if (parsed.publicKey) {
+            localStorage.setItem(EMAIL_CONFIG_KEY, JSON.stringify({
+              provider: 'emailjs',
+              gasUrl: '',
+              emailjs: parsed
+            }));
+          }
+        }
+      } catch(e) {}
+    }
+  } catch(e) {}
 
   loadData();
   syncWithSupabase();
+  processPendingAutomaticEmails();
   setInterval(syncWithSupabase, 5000);
   initLiveClock();
   updateNextTicketBadge();
@@ -640,15 +657,16 @@ function openTicketModal(record) {
   document.getElementById('modalTicketTime').textContent = record.checkInTime;
 
   // Set Email Status Banner state
-  const config = getEmailJSConfig();
+  const emailConfig = getEmailSenderConfig();
   if (record.email && record.email !== '-') {
-    if (config && config.serviceId && config.templateId && config.publicKey) {
-      updateModalEmailBanner('sending', 'Mengirimkan Struk & Kode QR ke Email...', `Tujuan: ${record.email}`);
+    if (isEmailSenderConfigured(emailConfig)) {
+      const provName = emailConfig.provider === 'gas' ? 'Google Apps Script (Gmail)' : 'EmailJS';
+      updateModalEmailBanner('sending', 'Mengirimkan Struk ke Email...', `Tujuan: ${record.email} (via ${provName})`);
     } else {
-      updateModalEmailBanner('ready', 'Pengiriman Otomatis Belum Aktif', `Email peserta: ${record.email}. Konfigurasikan EmailJS di menu Opsi.`);
+      updateModalEmailBanner('warning', 'Pengiriman Email Otomatis Belum Terhubung', `Klik di sini untuk menghubungkan Gmail / EmailJS Anda agar struk terkirim.`);
     }
   } else {
-    updateModalEmailBanner('none', 'Email Tidak Dicantumkan', 'Peserta dapat mengambil foto QR atau cetak tiket fisik.');
+    updateModalEmailBanner('none', 'Email Tidak Dicantumkan', 'Peserta dapat mengambil foto QR, kirim via WhatsApp, atau cetak tiket fisik.');
   }
 
   const statusBadge = document.getElementById('modalTicketStatusBadge');
@@ -735,13 +753,112 @@ function printCurrentTicket() {
 // PDF GENERATION & EMAIL DELIVERY (HTML2PDF & EMAILJS)
 // ========================================================
 
-// Get EmailJS configuration from LocalStorage
-function getEmailJSConfig() {
+// ========================================================
+// EMAIL PROVIDER MANAGEMENT (GOOGLE APPS SCRIPT & EMAILJS)
+// ========================================================
+
+// Get Email provider configuration from LocalStorage
+function getEmailSenderConfig() {
   try {
-    const raw = localStorage.getItem(EMAILJS_CONFIG_KEY);
-    return raw ? { ...DEFAULT_EMAILJS_CONFIG, ...JSON.parse(raw) } : DEFAULT_EMAILJS_CONFIG;
+    const raw = localStorage.getItem(EMAIL_CONFIG_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        provider: parsed.provider || 'gas',
+        gasUrl: parsed.gasUrl || '',
+        emailjs: {
+          serviceId: (parsed.emailjs && parsed.emailjs.serviceId) || '',
+          templateId: (parsed.emailjs && parsed.emailjs.templateId) || '',
+          publicKey: (parsed.emailjs && parsed.emailjs.publicKey) || ''
+        }
+      };
+    }
+
+    // Check legacy EmailJS configuration
+    const legacyRaw = localStorage.getItem(LEGACY_EMAILJS_CONFIG_KEY);
+    if (legacyRaw) {
+      const leg = JSON.parse(legacyRaw);
+      if (leg.serviceId && leg.templateId && leg.publicKey) {
+        return {
+          provider: 'emailjs',
+          gasUrl: '',
+          emailjs: {
+            serviceId: leg.serviceId || '',
+            templateId: leg.templateId || '',
+            publicKey: leg.publicKey || ''
+          }
+        };
+      }
+    }
   } catch (e) {
-    return DEFAULT_EMAILJS_CONFIG;
+    console.warn('Error reading email config:', e);
+  }
+
+  return {
+    provider: 'emailjs',
+    gasUrl: '',
+    emailjs: { ...DEFAULT_EMAILJS_CONFIG }
+  };
+}
+
+function isEmailSenderConfigured(cfg) {
+  if (!cfg) return false;
+  if (cfg.provider === 'gas') {
+    return Boolean(cfg.gasUrl && cfg.gasUrl.trim().startsWith('http'));
+  }
+  if (cfg.provider === 'emailjs') {
+    const e = cfg.emailjs;
+    return Boolean(
+      e &&
+      e.serviceId && e.serviceId.trim() &&
+      e.templateId && e.templateId.trim() &&
+      e.publicKey && e.publicKey.trim()
+    );
+  }
+  return false;
+}
+
+function addPendingEmail(ticketId) {
+  if (!ticketId) return;
+  try {
+    const pending = JSON.parse(localStorage.getItem(PENDING_EMAIL_KEY) || '[]');
+    if (!pending.includes(ticketId)) {
+      pending.push(ticketId);
+      localStorage.setItem(PENDING_EMAIL_KEY, JSON.stringify(pending));
+    }
+  } catch (error) {
+    console.warn('Could not save pending email:', error);
+  }
+}
+
+function removePendingEmail(ticketId) {
+  if (!ticketId) return;
+  try {
+    const pending = JSON.parse(localStorage.getItem(PENDING_EMAIL_KEY) || '[]');
+    localStorage.setItem(PENDING_EMAIL_KEY, JSON.stringify(pending.filter(id => id !== ticketId)));
+  } catch (error) {
+    console.warn('Could not update pending emails:', error);
+  }
+}
+
+async function processPendingAutomaticEmails() {
+  const config = getEmailSenderConfig();
+  if (!isEmailSenderConfigured(config)) return;
+
+  let pending;
+  try {
+    pending = JSON.parse(localStorage.getItem(PENDING_EMAIL_KEY) || '[]');
+  } catch (error) {
+    pending = [];
+  }
+
+  for (const ticketId of pending) {
+    const record = cloakroomData.find(item => item.id === ticketId);
+    if (record && record.email && record.email !== '-') {
+      await dispatchAutomaticEmail(record, false);
+    } else {
+      removePendingEmail(ticketId);
+    }
   }
 }
 
@@ -760,6 +877,8 @@ function buildEmailTemplateParams(record, targetEmail, qrCodeUrl) {
     recipient_email: email,
     user_email: email,
     to_name: record.name,
+    name: record.name,
+    title: `Struk Penitipan #${record.id}`,
     ticket_code: record.id,
     category: record.category,
     phone: record.phone || '-',
@@ -771,23 +890,134 @@ function buildEmailTemplateParams(record, targetEmail, qrCodeUrl) {
   };
 }
 
+// Switch Tab inside Email Settings Modal (gas / emailjs)
+function switchEmailProviderTab(provider) {
+  const tabGas = document.getElementById('tabBtnGas');
+  const tabEmailjs = document.getElementById('tabBtnEmailjs');
+  const panelGas = document.getElementById('panelGas');
+  const panelEmailjs = document.getElementById('panelEmailjs');
+  if (!tabGas || !tabEmailjs || !panelGas || !panelEmailjs) return;
+
+  if (provider === 'gas') {
+    tabGas.className = 'flex-1 py-2 px-3 rounded-lg font-bold transition text-xs flex items-center justify-center gap-1.5 bg-white text-[#186301] shadow-sm';
+    tabEmailjs.className = 'flex-1 py-2 px-3 rounded-lg font-bold transition text-xs flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900';
+    panelGas.classList.remove('hidden');
+    panelEmailjs.classList.add('hidden');
+  } else {
+    tabEmailjs.className = 'flex-1 py-2 px-3 rounded-lg font-bold transition text-xs flex items-center justify-center gap-1.5 bg-white text-[#186301] shadow-sm';
+    tabGas.className = 'flex-1 py-2 px-3 rounded-lg font-bold transition text-xs flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900';
+    panelEmailjs.classList.remove('hidden');
+    panelGas.classList.add('hidden');
+  }
+}
+
+// Render status banner in Email Settings Modal
+function renderEmailConfigStatus() {
+  const container = document.getElementById('emailCurrentStatusAlert');
+  if (!container) return;
+
+  const cfg = getEmailSenderConfig();
+  if (isEmailSenderConfigured(cfg)) {
+    if (cfg.provider === 'gas') {
+      container.className = 'p-3 rounded-xl border border-[#b8e2b3] bg-[#f4faf3] text-[#186301] flex items-center justify-between';
+      container.innerHTML = `
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-circle-check text-[#49a141] text-base"></i>
+          <div>
+            <p class="font-bold">Google Apps Script (Gmail) Aktif & Siap</p>
+            <p class="text-[11px] text-slate-600">Email struk & QR akan terkirim otomatis lewat akun Gmail Anda</p>
+          </div>
+        </div>
+        <span class="px-2 py-0.5 rounded-full bg-[#186301] text-white text-[10px] font-bold">Terhubung</span>
+      `;
+    } else {
+      container.className = 'p-3 rounded-xl border border-[#b8e2b3] bg-[#f4faf3] text-[#186301] flex items-center justify-between';
+      container.innerHTML = `
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-circle-check text-[#49a141] text-base"></i>
+          <div>
+            <p class="font-bold">EmailJS Aktif & Siap</p>
+            <p class="text-[11px] text-slate-600">Service ID: <code class="font-mono font-bold">${cfg.emailjs.serviceId}</code></p>
+          </div>
+        </div>
+        <span class="px-2 py-0.5 rounded-full bg-[#186301] text-white text-[10px] font-bold">Terhubung</span>
+      `;
+    }
+  } else {
+    container.className = 'p-3 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 flex items-center justify-between';
+    container.innerHTML = `
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base"></i>
+        <div>
+          <p class="font-bold">Penyedia Email Belum Terhubung</p>
+          <p class="text-[11px] text-amber-800">Pilih Google Apps Script (direkomendasikan) atau EmailJS di bawah agar email terkirim otomatis.</p>
+        </div>
+      </div>
+      <span class="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold">Belum Aktif</span>
+    `;
+  }
+}
+
+// Open Email Config Modal
 function openEmailConfigModal() {
-  const config = getEmailJSConfig();
-  document.getElementById('emailjsServiceId').value = config.serviceId || DEFAULT_EMAILJS_CONFIG.serviceId;
-  document.getElementById('emailjsTemplateId').value = config.templateId || DEFAULT_EMAILJS_CONFIG.templateId;
-  document.getElementById('emailjsPublicKey').value = config.publicKey || DEFAULT_EMAILJS_CONFIG.publicKey;
+  const config = getEmailSenderConfig();
+  
+  const gasInput = document.getElementById('gasWebhookUrl');
+  if (gasInput) gasInput.value = config.gasUrl || '';
+
+  const svcInput = document.getElementById('emailjsServiceId');
+  const tplInput = document.getElementById('emailjsTemplateId');
+  const pubInput = document.getElementById('emailjsPublicKey');
+  if (svcInput) svcInput.value = config.emailjs.serviceId || '';
+  if (tplInput) tplInput.value = config.emailjs.templateId || '';
+  if (pubInput) pubInput.value = config.emailjs.publicKey || '';
+
+  switchEmailProviderTab(config.provider || 'gas');
+  renderEmailConfigStatus();
+
   document.getElementById('emailConfigModal').classList.remove('hidden');
 }
 
+// Close Email Config Modal
 function closeEmailConfigModal() {
   document.getElementById('emailConfigModal').classList.add('hidden');
 }
 
-function saveEmailConfig(event) {
-  event.preventDefault();
-  const serviceId = document.getElementById('emailjsServiceId').value.trim();
-  const templateId = document.getElementById('emailjsTemplateId').value.trim();
-  const publicKey = document.getElementById('emailjsPublicKey').value.trim();
+// Save Google Apps Script Configuration
+function saveGasConfig() {
+  const gasUrl = (document.getElementById('gasWebhookUrl').value || '').trim();
+  if (!gasUrl || !gasUrl.startsWith('http')) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'URL Tidak Valid',
+      text: 'Harap masukkan URL Aplikasi Web Google Script yang valid (diawali https://script.google.com/macros/s/...)',
+      confirmButtonColor: '#297810'
+    });
+    return;
+  }
+
+  const current = getEmailSenderConfig();
+  current.provider = 'gas';
+  current.gasUrl = gasUrl;
+
+  localStorage.setItem(EMAIL_CONFIG_KEY, JSON.stringify(current));
+  renderEmailConfigStatus();
+  closeEmailConfigModal();
+  processPendingAutomaticEmails();
+
+  Swal.fire({
+    icon: 'success',
+    title: 'Google Apps Script Disimpan!',
+    text: 'Sistem siap mengirimkan struk tiket & QR code langsung lewat akun Gmail Anda.',
+    confirmButtonColor: '#186301'
+  });
+}
+
+// Save EmailJS Configuration
+function saveEmailjsConfig() {
+  const serviceId = (document.getElementById('emailjsServiceId').value || '').trim();
+  const templateId = (document.getElementById('emailjsTemplateId').value || '').trim();
+  const publicKey = (document.getElementById('emailjsPublicKey').value || '').trim();
 
   if (!serviceId || !templateId || !publicKey) {
     Swal.fire({
@@ -799,15 +1029,170 @@ function saveEmailConfig(event) {
     return;
   }
 
-  localStorage.setItem(EMAILJS_CONFIG_KEY, JSON.stringify({ serviceId, templateId, publicKey }));
+  const current = getEmailSenderConfig();
+  current.provider = 'emailjs';
+  current.emailjs = { serviceId, templateId, publicKey };
+
+  localStorage.setItem(EMAIL_CONFIG_KEY, JSON.stringify(current));
+  renderEmailConfigStatus();
   closeEmailConfigModal();
+  processPendingAutomaticEmails();
 
   Swal.fire({
     icon: 'success',
-    title: 'Pengaturan Email Disimpan!',
-    text: 'Struk PDF digital kini akan dikirimkan otomatis ke email peserta.',
-    timer: 2500,
-    showConfirmButton: false
+    title: 'Pengaturan EmailJS Disimpan!',
+    text: 'Sistem siap mengirimkan struk otomatis menggunakan EmailJS.',
+    confirmButtonColor: '#186301'
+  });
+}
+
+// Copy Google Apps Script Code
+function copyGoogleScriptCode() {
+  const gasCode = `function doPost(e) {
+  try {
+    var rawData = e.postData.contents;
+    var data = JSON.parse(rawData);
+
+    var toEmail = data.to_email || data.email;
+    if (!toEmail) return ContentService.createTextOutput("No recipient");
+
+    var ticketCode = data.ticket_code || "TIK-001";
+    var participantName = data.to_name || "Peserta";
+    var category = data.category || "Umum";
+    var items = data.items || "Barang Titipan";
+    var rack = data.rack || "Umum";
+    var checkInTime = data.check_in_time || "";
+    var qrCodeUrl = data.qr_code_url || "";
+
+    var subject = "🎫 Tiket Penitipan Barang #" + ticketCode + " - " + participantName + " (PCC Event)";
+
+    var htmlBody = "" +
+      "<div style='font-family: Arial, sans-serif; max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;'>" +
+        "<div style='background: #186301; padding: 24px; text-align: center; color: #ffffff;'>" +
+          "<div style='font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #77d26f;'>STRUK RESMI DIGITAL</div>" +
+          "<h1 style='margin: 4px 0 0 0; font-size: 22px; font-weight: 800;'>PCC EVENT CLOAKROOM</h1>" +
+          "<p style='margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;'>Sistem Penitipan Barang & Registrasi Peserta</p>" +
+        "</div>" +
+        "<div style='padding: 24px;'>" +
+          "<p style='margin-top: 0; font-size: 14px;'>Halo <b>" + participantName + "</b>,</p>" +
+          "<p style='font-size: 13px; color: #475569;'>Barang titipan Anda telah berhasil didaftarkan di sistem penitipan PCC Event.</p>" +
+          "<div style='background: #f4faf3; border: 2px dashed #b8e2b3; border-radius: 12px; padding: 16px; text-align: center; margin: 18px 0;'>" +
+            "<div style='font-size: 11px; font-weight: bold; color: #64748b;'>NOMOR TIKET ANDA:</div>" +
+            "<div style='font-size: 32px; font-weight: 900; color: #186301; font-family: monospace; margin: 4px 0;'>" + ticketCode + "</div>" +
+            "<div style='display:inline-block; font-size: 11px; font-weight: bold; background: #eaf7e8; color: #186301; padding: 3px 12px; border-radius: 20px; border: 1px solid #b8e2b3;'>STATUS: SEDANG DITITIPKAN</div>" +
+          "</div>" +
+          "<div style='text-align: center; margin: 20px 0;'>" +
+            "<p style='font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 8px;'>Tunjukkan Kode QR ini saat mengambil barang:</p>" +
+            "<img src='" + qrCodeUrl + "' width='200' height='200' style='border: 2px solid #186301; border-radius: 10px; padding: 8px; background: #fff;' alt='QR Code'/>" +
+          "</div>" +
+          "<table style='width: 100%; font-size: 13px; border-collapse: collapse; margin-top: 14px;'>" +
+            "<tr><td style='padding: 8px 0; color: #64748b;'>Nama Peserta</td><td style='padding: 8px 0; font-weight: bold; text-align: right;'>" + participantName + "</td></tr>" +
+            "<tr><td style='padding: 8px 0; color: #64748b;'>Kategori Acara</td><td style='padding: 8px 0; font-weight: bold; color: #186301; text-align: right;'>" + category + "</td></tr>" +
+            "<tr><td style='padding: 8px 0; color: #64748b;'>Rincian Barang</td><td style='padding: 8px 0; font-weight: bold; text-align: right;'>" + items + "</td></tr>" +
+            "<tr><td style='padding: 8px 0; color: #64748b;'>Lokasi Rak/Loker</td><td style='padding: 8px 0; font-weight: bold; text-align: right;'>" + rack + "</td></tr>" +
+            "<tr><td style='padding: 8px 0; color: #64748b;'>Waktu Check-In</td><td style='padding: 8px 0; font-weight: bold; text-align: right;'>" + checkInTime + "</td></tr>" +
+          "</table>" +
+        "</div>" +
+        "<div style='background: #f8fafc; padding: 14px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;'>" +
+          "Sistem Penitipan Barang Digital PCC Event &bull; Simpan email ini dengan baik" +
+        "</div>" +
+      "</div>";
+
+    MailApp.sendEmail({
+      to: toEmail,
+      subject: subject,
+      htmlBody: htmlBody
+    });
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "success" })).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+
+  navigator.clipboard.writeText(gasCode).then(() => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Kode Google Script Disalin!',
+      html: `
+        <p class="text-xs text-left mb-2">Langkah selanjutnya:</p>
+        <ol class="text-xs text-left list-decimal list-inside space-y-1 text-slate-600">
+          <li>Buka <b>script.google.com</b> & buat Proyek Baru.</li>
+          <li>Paste (tempel) kode ini di editor.</li>
+          <li>Klik <b>Terapkan</b> &gt; <b>Deployment Baru</b> &gt; <b>Aplikasi Web</b>.</li>
+          <li>Pilih Akses: <b>Siapa saja (Anyone)</b>.</li>
+          <li>Salin URL Web App dan tempelkan di kotak URL!</li>
+        </ol>
+      `,
+      confirmButtonColor: '#186301'
+    });
+  }).catch(() => {
+    Swal.fire({
+      icon: 'info',
+      title: 'Salin Kode Manual',
+      text: 'File kode juga tersedia di folder proyek: google_apps_script.js',
+      confirmButtonColor: '#186301'
+    });
+  });
+}
+
+// Test Send via Google Apps Script
+function testSendGasEmail() {
+  const gasUrl = (document.getElementById('gasWebhookUrl').value || '').trim();
+  if (!gasUrl || !gasUrl.startsWith('http')) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Isi URL Google Script',
+      text: 'Masukkan URL Web App Google Script Anda terlebih dahulu.'
+    });
+    return;
+  }
+
+  Swal.fire({
+    title: 'Tes Kirim via Google Script',
+    input: 'email',
+    inputLabel: 'Masukkan alamat email tujuan tes:',
+    inputPlaceholder: 'emailAnda@gmail.com',
+    showCancelButton: true,
+    confirmButtonText: 'Kirim Tes Sekarang',
+    cancelButtonText: 'Batal',
+    confirmButtonColor: '#186301',
+    showLoaderOnConfirm: true,
+    preConfirm: (targetEmail) => {
+      if (!targetEmail) {
+        Swal.showValidationMessage('Email tidak boleh kosong');
+        return false;
+      }
+      const testRecord = {
+        id: 'TIK-TEST',
+        name: 'Pengujian Sistem',
+        category: 'Uji Coba Pengiriman',
+        phone: '08123456789',
+        items: '1x Paket Uji Coba Email',
+        rack: 'Rak Percobaan',
+        checkInTime: formatDateTime(new Date()),
+        notes: 'Uji coba Google Apps Script'
+      };
+      const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=TIK-TEST';
+      return sendViaGoogleAppsScript(gasUrl, testRecord, targetEmail, qrUrl);
+    }
+  }).then(result => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Permintaan Kirim Berhasil Dikirim!',
+        text: 'Permintaan kirim telah diteruskan ke Google Apps Script. Periksa kotak masuk / spam email tujuan dalam beberapa detik.',
+        confirmButtonColor: '#186301'
+      });
+    }
+  }).catch(err => {
+    console.error('GAS Test error:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Pengiriman Gagal',
+      text: 'Terjadi kesalahan saat memanggil URL Google Script. Pastikan deployment diatur ke Akses: "Siapa saja (Anyone)".',
+      confirmButtonColor: '#297810'
+    });
   });
 }
 
@@ -827,7 +1212,7 @@ function testSendEmailJS() {
   }
 
   Swal.fire({
-    title: 'Tes Pengiriman Email',
+    title: 'Tes Pengiriman EmailJS',
     input: 'email',
     inputLabel: 'Masukkan alamat email penerima tes:',
     inputPlaceholder: 'emailAnda@example.com',
@@ -841,6 +1226,9 @@ function testSendEmailJS() {
         Swal.showValidationMessage('Email tidak boleh kosong');
         return false;
       }
+      if (typeof emailjs !== 'undefined' && emailjs.init) {
+        emailjs.init({ publicKey });
+      }
       return emailjs.send(serviceId, templateId, {
         to_email: targetEmail,
         email: targetEmail,
@@ -848,21 +1236,24 @@ function testSendEmailJS() {
         recipient_email: targetEmail,
         user_email: targetEmail,
         to_name: "Peserta Uji Coba",
+        name: "Peserta Uji Coba",
+        title: "Uji Coba Pengiriman Email",
         ticket_code: "TIK-TEST",
         category: "Uji Coba Sistem",
         phone: "08123456789",
         items: "Barang Pengujian",
         rack: "Rak Tes",
         check_in_time: formatDateTime(new Date()),
+        qr_code_url: "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=TIK-TEST",
         notes: "Pengujian integrasi EmailJS"
-      }, publicKey);
+      }, { publicKey });
     }
   }).then((result) => {
     if (result.isConfirmed) {
       Swal.fire({
         icon: 'success',
         title: 'Berhasil Terkirim!',
-        text: 'Email uji coba berhasil dikirim. Periksa inbox/spam email Anda.',
+        text: 'Email uji coba berhasil dikirim lewat EmailJS. Periksa inbox/spam email Anda.',
         confirmButtonColor: '#10b981'
       });
     }
@@ -871,12 +1262,11 @@ function testSendEmailJS() {
     Swal.fire({
       icon: 'error',
       title: 'Pengiriman Gagal',
-      text: 'Pastikan Service ID, Template ID, dan Public Key sudah benar. Pada EmailJS, isi kolom To Email template dengan {{to_email}} atau {{email}}, bukan alamat email tetap.',
+      text: 'Pastikan Service ID, Template ID, dan Public Key sudah benar dari akun emailjs.com Anda.',
       confirmButtonColor: '#297810'
     });
   });
 }
-
 // Generate & Download PDF Receipt using html2pdf
 function generateTicketPDF(record, shouldDownload = true) {
   const target = record || currentActiveTicketForReceipt;
@@ -983,13 +1373,58 @@ function downloadTicketPDF(ticketId = null) {
   }
 }
 
-// Send Ticket Receipt to Participant Email
+// Send Ticket Receipt via Google Apps Script (Fetch POST)
+async function sendViaGoogleAppsScript(url, record, targetEmail, qrCodeUrl) {
+  const payload = {
+    to_email: targetEmail,
+    email: targetEmail,
+    to_name: record.name,
+    ticket_code: record.id,
+    category: record.category,
+    phone: record.phone || '-',
+    items: record.items,
+    rack: record.rack || 'Umum',
+    check_in_time: record.checkInTime,
+    notes: record.notes || '-',
+    qr_code_url: qrCodeUrl
+  };
+
+  return fetch(url, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    },
+    body: JSON.stringify(payload)
+  });
+}
+
+// Send Ticket Receipt via EmailJS
+async function sendViaEmailJS(emailjsConfig, record, targetEmail, qrCodeUrl) {
+  if (typeof emailjs === 'undefined') {
+    throw new Error('Library EmailJS belum siap');
+  }
+
+  if (emailjs.init) {
+    emailjs.init({ publicKey: emailjsConfig.publicKey });
+  }
+
+  const templateParams = buildEmailTemplateParams(record, targetEmail, qrCodeUrl);
+  return emailjs.send(
+    emailjsConfig.serviceId,
+    emailjsConfig.templateId,
+    templateParams,
+    { publicKey: emailjsConfig.publicKey }
+  );
+}
+
+// Send Ticket Receipt to Participant Email (Manual trigger from Modal/Table)
 async function sendTicketToEmail(record, showPromptIfNoConfig = true) {
   const target = record || currentActiveTicketForReceipt;
   if (!target) return;
   target.email = normalizeParticipantEmail(target.email);
 
-  // If email not provided, prompt for email
+  // If email not provided, prompt user for recipient email
   if (!target.email || target.email === '-') {
     Swal.fire({
       title: 'Kirim Struk ke Email',
@@ -1022,105 +1457,95 @@ async function sendTicketToEmail(record, showPromptIfNoConfig = true) {
     return;
   }
 
-  const config = getEmailJSConfig();
+  const config = getEmailSenderConfig();
+  if (!isEmailSenderConfigured(config)) {
+    if (showPromptIfNoConfig) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Penyedia Email Belum Terhubung',
+        text: 'Aplikasi belum terhubung ke pengirim email (Google Apps Script atau EmailJS). Buka pengaturan untuk menghubungkan akun Gmail Anda dalam 1 menit.',
+        showCancelButton: true,
+        confirmButtonText: 'Atur Email Sekarang',
+        cancelButtonText: 'Tutup',
+        confirmButtonColor: '#186301'
+      }).then(r => {
+        if (r.isConfirmed) openEmailConfigModal();
+      });
+    }
+    updateModalEmailBanner('warning', 'Pengiriman Email Belum Terhubung', 'Klik di sini untuk menghubungkan Akun Gmail Anda.');
+    return;
+  }
+
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&qzone=4&ecc=M&data=${encodeURIComponent(target.id)}`;
+  const provName = config.provider === 'gas' ? 'Google Apps Script (Gmail)' : 'EmailJS';
+  updateModalEmailBanner('sending', `Mengirimkan Struk ke Email...`, `Tujuan: ${target.email} via ${provName}`);
 
-  // If EmailJS is properly configured, send directly in the background
-  if (config && config.serviceId && config.templateId && config.publicKey && typeof emailjs !== 'undefined') {
-    updateModalEmailBanner('sending', 'Mengirimkan Struk & Kode QR ke Email...', `Tujuan: ${target.email}`);
-
-    const pdfDataUri = await generateTicketPDF(target, false);
-    const pdfBase64 = typeof pdfDataUri === 'string'
-      ? pdfDataUri.replace(/^data:application\/pdf;base64,/, '')
-      : null;
-
-    const templateParams = buildEmailTemplateParams(target, target.email, qrCodeUrl);
-    if (pdfBase64) {
-      templateParams.attachments = [{
-        name: `Struk_Penitipan_${target.id}.pdf`,
-        content: pdfBase64,
-        encoding: 'base64',
-        type: 'application/pdf'
-      }];
-      templateParams.pdf_attachment = templateParams.attachments[0];
+  try {
+    if (config.provider === 'gas') {
+      await sendViaGoogleAppsScript(config.gasUrl, target, target.email, qrCodeUrl);
+    } else {
+      await sendViaEmailJS(config.emailjs, target, target.email, qrCodeUrl);
     }
 
-    emailjs.send(config.serviceId, config.templateId, templateParams, config.publicKey)
-      .then(() => {
-        updateModalEmailBanner('success', 'Struk & Kode QR Berhasil Terkirim ke Email!', `Terkirim otomatis ke: ${target.email}`);
-        
-        const Toast = Swal.mixin({
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 3500,
-          timerProgressBar: true
-        });
-        Toast.fire({
-          icon: 'success',
-          title: `Struk tiket ${target.id} & QR terkirim ke email!`
-        });
-      })
-      .catch(err => {
-        console.error('EmailJS Send Error:', err);
-        updateModalEmailBanner('warning', 'Pengiriman Otomatis EmailJS Terkendala', 'Periksa Service / Template ID di menu Opsi.');
-      });
-  } else {
-    // If EmailJS is not configured yet
-    updateModalEmailBanner('warning', 'Pengiriman Otomatis Belum Aktif', `Email peserta: ${target.email}. Konfigurasikan EmailJS di menu Opsi agar struk dikirim langsung.`);
+    removePendingEmail(target.id);
+    updateModalEmailBanner('success', 'Struk & Kode QR Berhasil Terkirim ke Email!', `Terkirim ke: ${target.email}`);
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3500,
+      timerProgressBar: true
+    });
+    Toast.fire({
+      icon: 'success',
+      title: `Struk tiket ${target.id} & QR terkirim ke email!`
+    });
+  } catch (err) {
+    console.error('Email send error:', err);
+    updateModalEmailBanner('warning', 'Pengiriman Email Terkendala', (err && err.text) || (err && err.message) || 'Periksa pengaturan email di menu Opsi.');
   }
 }
 
-// Automatically Dispatch Email with Live QR Code in Background (Hands-free zero-click!)
-async function dispatchAutomaticEmail(record) {
+// Automatically Dispatch Email with Live QR Code in Background (Zero-click on Check-In)
+async function dispatchAutomaticEmail(record, addToQueue = true) {
   if (!record || !record.email || record.email === '-') return;
   record.email = normalizeParticipantEmail(record.email);
   if (record.email === '-') return;
 
-  const config = getEmailJSConfig();
+  const config = getEmailSenderConfig();
+  if (!isEmailSenderConfigured(config)) {
+    if (addToQueue) addPendingEmail(record.id);
+    updateModalEmailBanner('warning', 'Pengiriman Email Belum Terhubung', `Email peserta: ${record.email}. Klik di sini untuk menghubungkan Gmail Anda.`);
+    return;
+  }
+
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&qzone=4&ecc=M&data=${encodeURIComponent(record.id)}`;
+  const provName = config.provider === 'gas' ? 'Google Apps Script' : 'EmailJS';
+  updateModalEmailBanner('sending', 'Mengirimkan Struk ke Email...', `Tujuan: ${record.email} (via ${provName})`);
 
-  if (config && config.serviceId && config.templateId && config.publicKey && typeof emailjs !== 'undefined') {
-    updateModalEmailBanner('sending', 'Mengirimkan Struk & Kode QR ke Email...', `Tujuan: ${record.email}`);
-
-    const pdfDataUri = await generateTicketPDF(record, false);
-    const pdfBase64 = typeof pdfDataUri === 'string'
-      ? pdfDataUri.replace(/^data:application\/pdf;base64,/, '')
-      : null;
-
-    const templateParams = buildEmailTemplateParams(record, record.email, qrCodeUrl);
-    if (pdfBase64) {
-      templateParams.attachments = [{
-        name: `Struk_Penitipan_${record.id}.pdf`,
-        content: pdfBase64,
-        encoding: 'base64',
-        type: 'application/pdf'
-      }];
-      templateParams.pdf_attachment = templateParams.attachments[0];
+  try {
+    if (config.provider === 'gas') {
+      await sendViaGoogleAppsScript(config.gasUrl, record, record.email, qrCodeUrl);
+    } else {
+      await sendViaEmailJS(config.emailjs, record, record.email, qrCodeUrl);
     }
 
-    emailjs.send(config.serviceId, config.templateId, templateParams, config.publicKey)
-      .then(() => {
-        updateModalEmailBanner('success', 'Struk & Kode QR Berhasil Terkirim ke Email!', `Terkirim otomatis ke: ${record.email}`);
-        
-        const Toast = Swal.mixin({
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 3500,
-          timerProgressBar: true
-        });
-        Toast.fire({
-          icon: 'success',
-          title: `Struk tiket ${record.id} & QR otomatis terkirim ke email!`
-        });
-      })
-      .catch((err) => {
-        console.error('EmailJS Auto-Send Error:', err);
-        updateModalEmailBanner('warning', 'Pengiriman Otomatis Terkendala', 'Periksa Service/Template ID EmailJS di menu Opsi.');
-      });
-  } else {
-    updateModalEmailBanner('warning', 'Pengiriman Otomatis Belum Aktif', `Email peserta: ${record.email}. Konfigurasikan EmailJS di menu Opsi agar struk dikirim langsung.`);
+    removePendingEmail(record.id);
+    updateModalEmailBanner('success', 'Struk & Kode QR Berhasil Terkirim ke Email!', `Terkirim otomatis ke: ${record.email}`);
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3500,
+      timerProgressBar: true
+    });
+    Toast.fire({
+      icon: 'success',
+      title: `Struk tiket ${record.id} & QR otomatis terkirim ke email!`
+    });
+  } catch (err) {
+    console.error('Email auto-dispatch error:', err);
+    updateModalEmailBanner('warning', 'Pengiriman Otomatis Terkendala', (err && err.text) || (err && err.message) || 'Periksa konfigurasi email di menu Opsi.');
   }
 }
 
@@ -1137,21 +1562,28 @@ function updateModalEmailBanner(type, title, subtext) {
   if (type === 'sending') {
     banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-sky-50 border border-sky-200 text-sky-950 transition';
     icon.className = 'fa-solid fa-spinner fa-spin text-sky-600 text-sm';
+    banner.onclick = null;
+    banner.style.cursor = 'default';
   } else if (type === 'success') {
-    banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-emerald-50 border border-emerald-200 text-emerald-950 transition';
-    icon.className = 'fa-solid fa-circle-check text-emerald-600 text-sm';
+    banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-[#eaf7e8] border border-[#b8e2b3] text-[#186301] transition';
+    icon.className = 'fa-solid fa-circle-check text-[#49a141] text-sm';
+    banner.onclick = null;
+    banner.style.cursor = 'default';
   } else if (type === 'warning') {
-    banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-rose-50 border border-rose-200 text-rose-950 transition';
-    icon.className = 'fa-solid fa-triangle-exclamation text-rose-600 text-sm';
+    banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-amber-50 border border-amber-200 text-amber-950 transition cursor-pointer hover:bg-amber-100/80';
+    icon.className = 'fa-solid fa-triangle-exclamation text-amber-600 text-sm';
+    banner.title = 'Klik untuk membuka Pengaturan Email';
+    banner.onclick = () => openEmailConfigModal();
   } else {
     banner.className = 'p-3 rounded-2xl text-xs flex items-center gap-2.5 bg-slate-50 border border-slate-200 text-slate-700 transition';
-    icon.className = 'fa-solid fa-circle-info text-sky-600 text-sm';
+    icon.className = 'fa-solid fa-circle-info text-slate-500 text-sm';
+    banner.onclick = null;
+    banner.style.cursor = 'default';
   }
 
   text.textContent = title;
   sub.textContent = subtext;
 }
-
 // Copy Ready-to-Use EmailJS HTML Template (with QR Image variable)
 function copyEmailTemplateHTML() {
   const template = `<style>

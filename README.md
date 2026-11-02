@@ -55,13 +55,15 @@ Aplikasi menggunakan skema warna hijau alami modern berbasis palet 5-warna:
 ### 2. 🖨️ Struk Digital, Kode QR & Pengiriman Otomatis ke Email
 - **Modal Tiket Digital Pop-up**: Langsung muncul otomatis setelah data disimpan.
 - **⚡ Pengiriman Email 100% Otomatis (Zero-Click)**:
-  * Begitu tombol *"Simpan & Buat Tiket"* diklik, sistem **secara otomatis di latar belakang langsung mengirimkan struk ke alamat email peserta tanpa perlu menekan tombol kirim lagi**.
+  * Begitu tombol *"Simpan & Buat Tiket"* diklik, sistem **secara otomatis di latar belakang langsung mengirimkan struk ke alamat email peserta**.
   * Email yang diterima peserta memuat **Gambar Kode QR Utuh**, Nomor Tiket, Identitas, Rincian Barang, dan Lokasi Rak.
   * Berkas **PDF Struk Resmi** (`.pdf`) juga secara otomatis terunduh ke perangkat.
-  * Banner status live di struk menampilkan konfirmasi pengiriman secara *real-time*.
-- **Konfigurasi EmailJS Cepat**:
-  * Panitia cukup menyalin 3 kunci di menu **Opsi ➔ Pengaturan Email (EmailJS)** sekali saja.
-  * Tersedia tombol *"Salin Template HTML"* untuk kemudahan pengaturan tampilan email dengan gambar QR dinamis.
+- **Dua Pilihan Penyedia Email (Menu Opsi ➔ Pengaturan Email)**:
+  1. **Google Apps Script (Direkomendasikan - Paling Mudah)**:
+     * Menggunakan akun Gmail panitia langsung, 100% gratis, tanpa perlu daftar akun pihak ketiga.
+     * Cukup salin kode script yang telah disediakan (`google_apps_script.js`), deploy di [script.google.com](https://script.google.com), lalu tempelkan URL Web App-nya.
+  2. **EmailJS**:
+     * Untuk pengguna yang telah memiliki akun [emailjs.com](https://www.emailjs.com), masukkan Service ID, Template ID, dan Public Key Anda.
 - **💬 Kirim Bukti via WhatsApp**: Tombol satu-klik untuk mengirimkan struk konfirmasi langsung ke nomor WhatsApp peserta.
 - **Cetak Struk Khusus (*Thermal Receipt & Kertas*)**: Dilengkapi CSS `@media print` terformat rapi untuk printer thermal ukuran 58mm/80mm maupun kertas standar.
 
