@@ -204,15 +204,15 @@ async function deleteRecordFromSupabase(ticketId) {
   }
 }
 
-// Next Ticket Code Generator (TIK-001, TIK-002, etc.)
+// Next Ticket Code Generator (01, 02, etc.)
 function getNextTicketCode() {
   if (!cloakroomData || cloakroomData.length === 0) {
-    return 'TIK-001';
+    return '01';
   }
   let maxNumber = 0;
   cloakroomData.forEach(item => {
     if (item.id && typeof item.id === 'string') {
-      const match = item.id.match(/^TIK-(\d+)$/i);
+      const match = item.id.match(/^(?:TIK-)?(\d+)$/i);
       if (match) {
         const num = parseInt(match[1], 10);
         if (num > maxNumber) maxNumber = num;
@@ -220,7 +220,7 @@ function getNextTicketCode() {
     }
   });
   const nextNumber = maxNumber + 1;
-  return `TIK-${String(nextNumber).padStart(3, '0')}`;
+  return String(nextNumber).padStart(2, '0');
 }
 
 function updateNextTicketBadge() {
@@ -823,7 +823,7 @@ function normalizeParticipantEmail(email) {
 
 function formatShortTicketNumber(ticketCode) {
   if (typeof ticketCode !== 'string') return '';
-  const match = ticketCode.match(/TIK-(\d+)/i);
+  const match = ticketCode.match(/^(?:TIK-)?(\d+)$/i);
   if (!match) return ticketCode;
   return String(parseInt(match[1], 10)).padStart(2, '0');
 }
@@ -1998,12 +1998,14 @@ function onQrScanSuccess(decodedText) {
   } catch (e) {
     // Keep the original text if it is not valid URI encoding.
   }
-  const match = ticketLookupText.match(/TIK-\d+/i);
-  if (match) {
-    targetTicketId = match[0].toUpperCase();
-  }
+  const normalizeTicketLookup = (value) => {
+    const text = String(value || '').trim().toUpperCase();
+    const match = text.match(/(?:TIK-)?(\d+)/i);
+    return match ? String(parseInt(match[1], 10)).padStart(2, '0') : text;
+  };
 
-  const foundItem = cloakroomData.find(item => item.id.toUpperCase() === targetTicketId.toUpperCase());
+  targetTicketId = normalizeTicketLookup(ticketLookupText);
+  const foundItem = cloakroomData.find(item => normalizeTicketLookup(item.id) === targetTicketId);
 
   if (!foundItem) {
     Swal.fire({
@@ -2029,11 +2031,15 @@ function handleManualCheckOutSearch(event) {
   const inputVal = document.getElementById('manualTicketInput').value.trim();
   if (!inputVal) return;
 
-  const match = inputVal.match(/TIK-\d+/i);
-  const searchCode = match ? match[0].toUpperCase() : inputVal.toUpperCase();
+  const normalizeTicketLookup = (value) => {
+    const text = String(value || '').trim().toUpperCase();
+    const match = text.match(/(?:TIK-)?(\d+)/i);
+    return match ? String(parseInt(match[1], 10)).padStart(2, '0') : text;
+  };
 
-  const foundItem = cloakroomData.find(item => 
-    item.id.toUpperCase() === searchCode ||
+  const searchCode = normalizeTicketLookup(inputVal);
+  const foundItem = cloakroomData.find(item =>
+    normalizeTicketLookup(item.id) === searchCode ||
     item.name.toLowerCase().includes(inputVal.toLowerCase())
   );
 
