@@ -5,9 +5,9 @@ const PARTICIPANT_DEFAULT_EMAIL_CONFIG = {
   provider: 'emailjs',
   gasUrl: '',
   emailjs: {
-    serviceId: 'service_koorlap',
-    templateId: 'template_vonexus',
-    publicKey: 'vyV-uoZw2LAOOKupU'
+    serviceId: '',
+    templateId: '',
+    publicKey: ''
   }
 };
 

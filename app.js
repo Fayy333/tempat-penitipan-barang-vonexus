@@ -9,9 +9,9 @@ const EMAIL_CONFIG_KEY = 'PCC_EMAIL_CONFIG_V2';
 const LEGACY_EMAILJS_CONFIG_KEY = 'PCC_EMAILJS_CONFIG_V1';
 const PENDING_EMAIL_KEY = 'PCC_PENDING_EMAILS_V1';
 const DEFAULT_EMAILJS_CONFIG = {
-  serviceId: 'service_koorlap',
-  templateId: 'template_vonexus',
-  publicKey: 'vyV-uoZw2LAOOKupU'
+  serviceId: '',
+  templateId: '',
+  publicKey: ''
 };
 const SUPABASE_CONFIG = {
   url: 'https://iaafpcvuwbodxuzehpof.supabase.co',
@@ -789,7 +789,7 @@ function getEmailSenderConfig() {
   }
 
   return {
-    provider: 'emailjs',
+    provider: 'gas',
     gasUrl: '',
     emailjs: { ...DEFAULT_EMAILJS_CONFIG }
   };
