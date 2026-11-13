@@ -21,9 +21,9 @@ function getParticipantEmailConfig() {
         provider,
         gasUrl: parsed.gasUrl?.trim() || '',
         emailjs: {
-          serviceId: parsed.emailjs?.serviceId || '',
-          templateId: parsed.emailjs?.templateId || '',
-          publicKey: parsed.emailjs?.publicKey || ''
+          serviceId: parsed.emailjs?.serviceId || PARTICIPANT_DEFAULT_EMAIL_CONFIG.emailjs.serviceId,
+          templateId: parsed.emailjs?.templateId || PARTICIPANT_DEFAULT_EMAIL_CONFIG.emailjs.templateId,
+          publicKey: parsed.emailjs?.publicKey || PARTICIPANT_DEFAULT_EMAIL_CONFIG.emailjs.publicKey
         }
       };
 
@@ -60,6 +60,19 @@ function formatParticipantTicketNumber(ticketCode) {
   return match ? String(parseInt(match[1], 10)).padStart(2, '0') : String(ticketCode);
 }
 
+function formatParticipantEmailError(error) {
+  const detail = String(error?.text || error?.message || '').trim();
+  if (/template.*not found|template ID/i.test(detail)) {
+    return 'Template ID tidak ditemukan. Buka Dashboard EmailJS pada akun panitia, salin Template ID yang tepat dari Email Templates, lalu simpan ulang pengaturan Email.';
+  }
+  return detail || 'Pengiriman EmailJS ditolak atau koneksi tidak tersedia.';
+}
+
+function buildQrCodeImageUrl(value, size = 400) {
+  const payload = String(value ?? '').trim() || 'VONEXUS';
+  return `https://chart.googleapis.com/chart?cht=qr&chs=${size}x${size}&chld=H|1&chl=${encodeURIComponent(payload)}`;
+}
+
 function buildParticipantEmailParams(record, qrCodeUrl) {
   const email = record.email.trim().toLowerCase();
   return {
@@ -85,7 +98,7 @@ function buildParticipantEmailParams(record, qrCodeUrl) {
 
 async function sendParticipantTicketEmail(record) {
   const config = getParticipantEmailConfig();
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&qzone=4&ecc=M&data=${encodeURIComponent(record.id)}`;
+  const qrCodeUrl = buildQrCodeImageUrl(record.id, 400);
   const emailStatus = document.getElementById('participantEmailStatus');
 
   if (config.provider === 'emailjs') {
@@ -272,7 +285,7 @@ document.getElementById('participantForm').addEventListener('submit', async func
         }
         if (emailStatus) {
           emailStatus.className = 'mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700';
-          const emailErrorDetail = emailError?.text || emailError?.message || 'Pengiriman EmailJS ditolak atau koneksi tidak tersedia.';
+          const emailErrorDetail = formatParticipantEmailError(emailError);
           emailStatus.textContent = `Data tersimpan, tetapi email gagal dikirim: ${emailErrorDetail}`;
           emailStatus.classList.remove('hidden');
         }

@@ -761,9 +761,9 @@ function getEmailSenderConfig() {
         provider: parsed.provider || 'gas',
         gasUrl: parsed.gasUrl || '',
         emailjs: {
-          serviceId: (parsed.emailjs && parsed.emailjs.serviceId) || '',
-          templateId: (parsed.emailjs && parsed.emailjs.templateId) || '',
-          publicKey: (parsed.emailjs && parsed.emailjs.publicKey) || ''
+          serviceId: (parsed.emailjs && parsed.emailjs.serviceId) || DEFAULT_EMAILJS_CONFIG.serviceId,
+          templateId: (parsed.emailjs && parsed.emailjs.templateId) || DEFAULT_EMAILJS_CONFIG.templateId,
+          publicKey: (parsed.emailjs && parsed.emailjs.publicKey) || DEFAULT_EMAILJS_CONFIG.publicKey
         }
       };
     }
@@ -867,6 +867,11 @@ function formatShortTicketNumber(ticketCode) {
   const match = ticketCode.match(/^(?:TIK-)?(\d+)$/i);
   if (!match) return ticketCode;
   return String(parseInt(match[1], 10)).padStart(2, '0');
+}
+
+function buildQrCodeImageUrl(value, size = 400) {
+  const payload = String(value ?? '').trim() || 'VONEXUS';
+  return `https://chart.googleapis.com/chart?cht=qr&chs=${size}x${size}&chld=H|1&chl=${encodeURIComponent(payload)}`;
 }
 
 function buildEmailTemplateParams(record, targetEmail, qrCodeUrl) {
@@ -1247,7 +1252,7 @@ function testSendEmailJS() {
         items: "Barang Pengujian",
         rack: "Rak Tes",
         check_in_time: formatDateTime(new Date()),
-        qr_code_url: "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=TIK-TEST",
+        qr_code_url: "https://chart.googleapis.com/chart?cht=qr&chs=300x300&chld=H|1&chl=TIK-TEST",
         notes: "Pengujian integrasi EmailJS"
       }, { publicKey });
     }
@@ -1265,7 +1270,7 @@ function testSendEmailJS() {
     Swal.fire({
       icon: 'error',
       title: 'Pengiriman Gagal',
-      text: 'Pastikan Service ID, Template ID, dan Public Key sudah benar dari akun emailjs.com Anda.',
+      text: formatEmailJSError(err),
       confirmButtonColor: '#297810'
     });
   });
@@ -1421,6 +1426,14 @@ async function sendViaEmailJS(emailjsConfig, record, targetEmail, qrCodeUrl) {
   );
 }
 
+function formatEmailJSError(error) {
+  const detail = (error && (error.text || error.message) || '').trim();
+  if (/template.*not found|template ID/i.test(detail)) {
+    return 'Template ID tidak ditemukan. Buka EmailJS Dashboard > Email Templates, gunakan ID Template yang persis ada pada akun Anda, lalu simpan kembali pengaturan EmailJS.';
+  }
+  return detail || 'Periksa Service ID, Template ID, Public Key, dan koneksi EmailJS.';
+}
+
 // Send Ticket Receipt to Participant Email (Manual trigger from Modal/Table)
 async function sendTicketToEmail(record, showPromptIfNoConfig = true) {
   const target = record || currentActiveTicketForReceipt;
@@ -1479,7 +1492,7 @@ async function sendTicketToEmail(record, showPromptIfNoConfig = true) {
     return;
   }
 
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&qzone=4&ecc=M&data=${encodeURIComponent(target.id)}`;
+  const qrCodeUrl = buildQrCodeImageUrl(target.id, 400);
   const provName = config.provider === 'gas' ? 'Google Apps Script (Gmail)' : 'EmailJS';
   updateModalEmailBanner('sending', `Mengirimkan Struk ke Email...`, `Tujuan: ${target.email} via ${provName}`);
 
@@ -1505,7 +1518,7 @@ async function sendTicketToEmail(record, showPromptIfNoConfig = true) {
     });
   } catch (err) {
     console.error('Email send error:', err);
-    updateModalEmailBanner('warning', 'Pengiriman Email Terkendala', (err && err.text) || (err && err.message) || 'Periksa pengaturan email di menu Opsi.');
+    updateModalEmailBanner('warning', 'Pengiriman Email Terkendala', formatEmailJSError(err));
   }
 }
 
@@ -1522,7 +1535,7 @@ async function dispatchAutomaticEmail(record, addToQueue = true) {
     return;
   }
 
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&qzone=4&ecc=M&data=${encodeURIComponent(record.id)}`;
+  const qrCodeUrl = buildQrCodeImageUrl(record.id, 400);
   const provName = config.provider === 'gas' ? 'Google Apps Script' : 'EmailJS';
   updateModalEmailBanner('sending', 'Mengirimkan Struk ke Email...', `Tujuan: ${record.email} (via ${provName})`);
 
